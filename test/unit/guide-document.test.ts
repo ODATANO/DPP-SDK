@@ -1,0 +1,148 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { buildGuideDocument, guideDppId } from '../../src/battery/guide-document';
+import { defaultGuideAttributes, hashableAttributes } from '../../src/battery/guide-defaults';
+
+/**
+ * The guide-document builder renders a real passport (typed fields plus
+ * PassportAttributes rows) as the BatteryPass-Ready guide format. It must
+ * stay in sync with scripts/bp-ready-payload.mjs; the invariants tested here
+ * are the ones the official validator checked green on 2026-07-17.
+ */
+
+const PASSPORT = {
+    passportId: 'BAT-TEST-1',
+    model: 'PowerCell EV-75',
+    manufacturerId: 'DE-CELLCO-001',
+    batteryCategory: 'EV',
+    manufactureDate: '2026-07-01',
+    weightKg: 432.5,
+    performanceClass: 'B',
+    modifiedAt: '2026-07-15T05:29:04.222Z',
+    status: 'anchored',
+};
+const BATTERY = {
+    serialNumber: 'SN-1',
+    cellChemistry: 'NMC-811',
+    capacityKwh: 75,
+    carbonFootprintKgCO2: 3412.75,
+    cycleLife: null,
+    roundTripEfficiencyPct: null,
+};
+const RECYCLED = [{ material: 'Co', recycledPercentage: 16.5 }];
+const ATTRS = [
+    { section: 'PerformanceAndDurability', attribute: 'RatedCapacity', valueJson: '{"amperehourMiliamperehourValue":200,"ampereHourMiliamperehour":"Ah"}' },
+    { section: 'SupplyChainDueDiligence', attribute: 'SupplyChainIndices', valueJson: '"Cobalt origin: Australia (60%)"' },
+    // A KV row must never override a typed field.
+    { section: 'IdentifiersAndProductData', attribute: 'BatteryModelIdentifier', valueJson: '"WRONG"' },
+];
+
+describe('buildGuideDocument', () => {
+    const doc = buildGuideDocument(PASSPORT, [BATTERY], RECYCLED, ATTRS) as any;
+    const bp = doc.Battery_Passport;
+
+    it('renders identifiers with urn ids and typed-field precedence', () => {
+        assert.equal(bp.IdentifiersAndProductData.UniqueBatteryPassportIdentifierUniqueDPPIdentifier, guideDppId('BAT-TEST-1'));
+        assert.equal(bp.IdentifiersAndProductData.BatteryModelIdentifier, 'PowerCell EV-75');
+        assert.equal(bp.IdentifiersAndProductData.BatteryCategory.batteryCategoryValue, 'electric vehicle battery');
+        assert.equal(bp.IdentifiersAndProductData.BatteryMass.gramKgValue, 432.5);
+        assert.equal(bp.IdentifiersAndProductData['Date-timeOfLatestUpdateOfDPP'], '2026-07-15T05:29:04Z');
+    });
+    it('maps chemistry to the closed enum and CF to integer/per-kWh', () => {
+        assert.equal(bp.BatteryMaterialsAndComposition.BatteryChemistry.chemicalCodeValue, 'Li-ion NMC');
+        assert.equal(bp.BatteryMaterialsAndComposition.BatteryChemistry.additionallyPossibleValue, 'NMC-811');
+        assert.equal(bp.BatteryCarbonFootprint.AbsoluteBatteryCarbonFootprint['kgCO2-equivalentValue'], 3413);
+        assert.equal(bp.BatteryCarbonFootprint.BatteryCarbonFootprintPerFunctionalUnit['kgCO2-equivalentPerKilowattHourValue'], 45.5);
+    });
+    it('derives DPPStatus from the battery lifecycle', () => {
+        // No BatteryStatus row and status original both read Active.
+        assert.equal(bp.IdentifiersAndProductData.DPPStatus.dppStatusValue, 'Active');
+        const withOriginal = buildGuideDocument(PASSPORT, [BATTERY], RECYCLED, [
+            ...ATTRS, { section: 'IdentifiersAndProductData', attribute: 'BatteryStatus', valueJson: '{"batteryStatusValues":"original"}' },
+        ]) as any;
+        assert.equal(withOriginal.Battery_Passport.IdentifiersAndProductData.DPPStatus.dppStatusValue, 'Active');
+        const withRepurposed = buildGuideDocument(PASSPORT, [BATTERY], RECYCLED, [
+            ...ATTRS, { section: 'IdentifiersAndProductData', attribute: 'BatteryStatus', valueJson: '{"batteryStatusValues":"repurposed"}' },
+        ]) as any;
+        assert.equal(withRepurposed.Battery_Passport.IdentifiersAndProductData.DPPStatus.dppStatusValue, 'Active');
+        const withWaste = buildGuideDocument(PASSPORT, [BATTERY], RECYCLED, [
+            ...ATTRS, { section: 'IdentifiersAndProductData', attribute: 'BatteryStatus', valueJson: '{"batteryStatusValues":"waste"}' },
+        ]) as any;
+        assert.equal(withWaste.Battery_Passport.IdentifiersAndProductData.DPPStatus.dppStatusValue, 'Archived');
+    });
+    it('merges KV attribute rows into their sections', () => {
+        assert.equal(bp.PerformanceAndDurability.RatedCapacity.amperehourMiliamperehourValue, 200);
+        assert.equal(bp.SupplyChainDueDiligence.SupplyChainIndices, 'Cobalt origin: Australia (60%)');
+        assert.equal(bp.CircularityAndResourceEfficiency['Post-consumerRecycledCobaltShare'].percentageValue, 16.5);
+    });
+    it('omits empty sections instead of serving empty objects', () => {
+        const bare = buildGuideDocument(PASSPORT, [], [], []) as any;
+        assert.equal(bare.Battery_Passport.SupplyChainDueDiligence, undefined);
+        assert.ok(bare.Battery_Passport.IdentifiersAndProductData);
+    });
+    it('maps non-EV categories to their guide enums and drops the EV-only energy field', () => {
+        const ind = buildGuideDocument({ ...PASSPORT, batteryCategory: 'INDUSTRIAL' }, [BATTERY], RECYCLED, []) as any;
+        assert.equal(ind.Battery_Passport.IdentifiersAndProductData.BatteryCategory.batteryCategoryValue, 'industrial/non-stationary battery');
+        assert.equal(ind.Battery_Passport.PerformanceAndDurability, undefined);
+        assert.equal(bp.PerformanceAndDurability.CertifiedUsableBatteryEnergy.kilowattHourValue, 75);
+    });
+    it('maps STATIONARY to the stationary guide enum', () => {
+        const st = buildGuideDocument({ ...PASSPORT, batteryCategory: 'STATIONARY' }, [BATTERY], RECYCLED, []) as any;
+        assert.equal(st.Battery_Passport.IdentifiersAndProductData.BatteryCategory.batteryCategoryValue, 'industrial/stationary battery');
+        assert.equal(st.Battery_Passport.IdentifiersAndProductData.ManufacturingDate, '2026-07-01');
+    });
+    it('INDUSTRIAL_NO_BMS keeps the non-stationary enum but drops ManufacturingDate', () => {
+        const nb = buildGuideDocument({ ...PASSPORT, batteryCategory: 'INDUSTRIAL_NO_BMS' }, [BATTERY], RECYCLED, []) as any;
+        assert.equal(nb.Battery_Passport.IdentifiersAndProductData.BatteryCategory.batteryCategoryValue, 'industrial/non-stationary battery');
+        assert.equal(nb.Battery_Passport.IdentifiersAndProductData.ManufacturingDate, undefined);
+    });
+});
+
+describe('defaultGuideAttributes', () => {
+    const rows = defaultGuideAttributes({ passportId: 'BAT-X', model: 'M1', performanceClass: 'B' });
+    it('emits the full longlist default set with correct class split', () => {
+        assert.equal(rows.length, 65);
+        const byClass = rows.reduce((m: Record<string, number>, r) => ((m[r.accessClass] = (m[r.accessClass] ?? 0) + 1), m), {});
+        assert.deepEqual(byClass, { public: 48, legitimateInterest: 16, authority: 1 });
+        assert.ok(rows.every((r) => typeof JSON.parse(r.valueJson) !== 'undefined'));
+    });
+    it('hashableAttributes is order-stable (same hash input regardless of row order)', () => {
+        const shuffled = [...rows].reverse();
+        assert.deepEqual(hashableAttributes(shuffled), hashableAttributes(rows));
+    });
+    it('INDUSTRIAL set drops EV-only attrs and adds the required cobalt share', () => {
+        const ind = defaultGuideAttributes({ passportId: 'BAT-X', batteryCategory: 'INDUSTRIAL' });
+        assert.equal(ind.length, 64);
+        const names = new Set(ind.map((r) => r.attribute));
+        assert.ok(!names.has('StateOfCertifiedEnergySOCE'));
+        assert.ok(!names.has('CapacityThresholdForExhaustion'));
+        assert.ok(names.has('Post-consumerRecycledCobaltShare'));
+    });
+    it('LMT set adds the dynamic battery-state attributes as legitimate interest', () => {
+        const lmt = defaultGuideAttributes({ passportId: 'BAT-X', batteryCategory: 'LMT' });
+        assert.equal(lmt.length, 75);
+        const byName = new Map(lmt.map((r) => [r.attribute, r]));
+        assert.ok(!byName.has('StateOfCertifiedEnergySOCE'));
+        assert.equal(byName.get('RemainingCapacity')?.accessClass, 'legitimateInterest');
+        assert.equal(JSON.parse(byName.get('TimeSpentInExtremeTemperaturesAboveBoundary')!.valueJson), 42);
+        assert.equal(JSON.parse(byName.get('CapacityThroughput')!.valueJson).amperehourMiliamperehour, 'Ah');
+    });
+    it('STATIONARY set combines the industrial cobalt share with the dynamic attributes', () => {
+        const st = defaultGuideAttributes({ passportId: 'BAT-X', batteryCategory: 'STATIONARY' });
+        assert.equal(st.length, 76);
+        const names = new Set(st.map((r) => r.attribute));
+        assert.ok(!names.has('StateOfCertifiedEnergySOCE'));
+        assert.ok(names.has('Post-consumerRecycledCobaltShare'));
+        assert.ok(names.has('RemainingCapacity'));
+        assert.ok(names.has('DateOfPuttingTheBatteryIntoService'));
+    });
+    it('INDUSTRIAL_NO_BMS set drops the BMS-measured attributes', () => {
+        const nb = defaultGuideAttributes({ passportId: 'BAT-X', batteryCategory: 'INDUSTRIAL_NO_BMS' });
+        assert.equal(nb.length, 61);
+        const names = new Set(nb.map((r) => r.attribute));
+        assert.ok(!names.has('InitialInternalResistanceOfBatteryCellAndPackModuleRecommended'));
+        assert.ok(!names.has('InternalResistanceIncreaseOfPackCellAndModuleRecommended'));
+        assert.ok(!names.has('NumberOfFullChargingAndDischargingCycles'));
+        assert.ok(names.has('Post-consumerRecycledCobaltShare'));
+    });
+});

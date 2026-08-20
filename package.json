@@ -1,0 +1,124 @@
+{
+  "name": "@odatano/dpp-sdk",
+  "version": "0.1.0",
+  "description": "Chain-agnostic EU Battery Regulation Digital Product Passport domain SDK: canonical hashing, payload projection v2, field registries, merkle proofs, disclosure tiers.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ODATANO/DPP-SDK.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./hash": {
+      "types": "./dist/hash.d.ts",
+      "import": "./dist/hash.mjs",
+      "require": "./dist/hash.js",
+      "default": "./dist/hash.js"
+    },
+    "./cipher": {
+      "types": "./dist/cipher.d.ts",
+      "import": "./dist/cipher.mjs",
+      "require": "./dist/cipher.js",
+      "default": "./dist/cipher.js"
+    },
+    "./grantee": {
+      "types": "./dist/grantee.d.ts",
+      "import": "./dist/grantee.mjs",
+      "require": "./dist/grantee.js",
+      "default": "./dist/grantee.js"
+    },
+    "./fields": {
+      "types": "./dist/fields.d.ts",
+      "import": "./dist/fields.mjs",
+      "require": "./dist/fields.js",
+      "default": "./dist/fields.js"
+    },
+    "./merkle": {
+      "types": "./dist/merkle.d.ts",
+      "import": "./dist/merkle.mjs",
+      "require": "./dist/merkle.js",
+      "default": "./dist/merkle.js"
+    },
+    "./tier": {
+      "types": "./dist/tier.d.ts",
+      "import": "./dist/tier.mjs",
+      "require": "./dist/tier.js",
+      "default": "./dist/tier.js"
+    },
+    "./payload": {
+      "types": "./dist/payload.d.ts",
+      "import": "./dist/payload.mjs",
+      "require": "./dist/payload.js",
+      "default": "./dist/payload.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "import": "./dist/http.mjs",
+      "require": "./dist/http.js",
+      "default": "./dist/http.js"
+    },
+    "./battery/*": {
+      "types": "./dist/battery/*.d.ts",
+      "import": "./dist/battery/*.mjs",
+      "require": "./dist/battery/*.js",
+      "default": "./dist/battery/*.js"
+    },
+    "./integrations/*": {
+      "types": "./dist/integrations/*.d.ts",
+      "import": "./dist/integrations/*.mjs",
+      "require": "./dist/integrations/*.js",
+      "default": "./dist/integrations/*.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "dist/*": [
+        "./dist/*"
+      ],
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.mjs",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.mts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"test/unit/**/*.test.ts\"",
+    "test:ci": "node --import tsx --test-reporter=spec --test \"test/unit/**/*.test.ts\"",
+    "check:consumers": "node scripts/check-consumer-resolution.mjs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run check:consumers"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsup": "^8",
+    "tsx": "^4",
+    "typescript": "^5.9.3"
+  }
+}

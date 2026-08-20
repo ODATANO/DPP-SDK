@@ -1,0 +1,597 @@
+{
+  "payloadV2": {
+    "full": {
+      "inputs": {
+        "batteries": [
+          {
+            "serialNumber": "SN-GOLD-001",
+            "cellChemistry": "NMC-811",
+            "capacityKwh": 75,
+            "carbonFootprintKgCO2": "3412.75",
+            "supplierName": "CellCo GmbH",
+            "recycledContentPct": 12.5,
+            "cycleLife": 4200,
+            "roundTripEfficiencyPct": 92.5,
+            "leadContentPpm": 0
+          }
+        ],
+        "recycledMaterials": [
+          {
+            "material": "Co",
+            "recycledPercentage": "16",
+            "sourceSupplierName": "RecyCo"
+          },
+          {
+            "material": "Li",
+            "recycledPercentage": 6.5,
+            "sourceSupplierName": null
+          }
+        ],
+        "diligenceDocs": [
+          {
+            "docType": "audit",
+            "fileName": "audit.pdf",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "attributes": [
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "UniqueEconomicOperatorIdentifier",
+            "valueJson": "\"EORI-DE-CELLCO-001\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "UniqueFacilityIdentifier",
+            "valueJson": "\"GLN-FAC-4098765432101\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "EconomicOperatorInformation",
+            "valueJson": "{\"name\":\"CellCo_GmbH\",\"registeredTradeNameOrRegisteredTrademark\":\"CellCo\",\"postalAddress\":\"Zellstraße 12, 01067 Dresden, Germany\",\"webAddress\":\"https://www.cellco.example\",\"e-mailAddress\":\"compliance@cellco.example\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "ManufacturerInformation",
+            "valueJson": "{\"name\":\"CellCo_Manufacturing_GmbH\",\"registeredTradeNameOrRegisteredTrademark\":\"CellCo Manufacturing\",\"postalAddress\":\"Werkallee 3, 01069 Dresden, Germany\",\"webAddress\":\"https://www.cellco-manufacturing.example\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "ManufacturingPlace",
+            "valueJson": "\"Dresden, Germany\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "WarrantyPeriodOfTheBattery",
+            "valueJson": "\"2034-07-01\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "IdentifiersAndProductData",
+            "attribute": "BatteryStatus",
+            "valueJson": "{\"batteryStatusValues\":\"original\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "RatedCapacity",
+            "valueJson": "{\"amperehourMiliamperehourValue\":200,\"ampereHourMiliamperehour\":\"Ah\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "CapacityFade",
+            "valueJson": "{\"percentageValue\":0.8,\"percent\":\"%\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "StateOfCertifiedEnergySOCE",
+            "valueJson": "{\"percentageValue\":99.2,\"percent\":\"%\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "StateOfChargeSoC",
+            "valueJson": "{\"percentageValue\":64,\"percent\":\"%\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "MinimumVoltage",
+            "valueJson": "{\"voltValue\":280,\"volt\":\"V\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "MaximumVoltage",
+            "valueJson": "{\"voltValue\":420,\"volt\":\"V\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "NominalVoltage",
+            "valueJson": "{\"voltValue\":370,\"volt\":\"V\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "OriginalPowerCapability",
+            "valueJson": "{\"wattValueAt80SoC\":150000,\"wattValueAt20SoC\":120000,\"watt\":\"W\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "PowerFade",
+            "valueJson": "{\"percentageValue\":0.9,\"percent\":\"%\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "MaximumPermittedBatteryPower",
+            "valueJson": "{\"wattValue\":150000,\"watt\":\"W\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "InitialRoundTripEnergyEfficiency",
+            "valueJson": "{\"percentageValue\":96,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "RoundTripEnergyEfficiencyAt50OfCycleLife",
+            "valueJson": "{\"percentageValue\":94.2,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "EnergyRoundTripEfficiencyFade",
+            "valueJson": "{\"percentageValue\":0.4,\"percent\":\"%\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "InitialInternalResistanceOfBatteryCellAndPackModuleRecommended",
+            "valueJson": "{\"ohmValue\":14,\"ohm\":\"Ohm\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "InternalResistanceIncreaseOfPackCellAndModuleRecommended",
+            "valueJson": "{\"percentageValue\":2.1,\"percent\":\"%\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "ExpectedLifetimeInCalendarYears",
+            "valueJson": "12",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "ExpectedLifetime-NumberOfCharge-dischargeCycles",
+            "valueJson": "1800",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "NumberOfFullChargingAndDischargingCycles",
+            "valueJson": "14",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "Cycle-lifeReferenceTest",
+            "valueJson": "\"IEC 62660-1:2018 / UN 38.3\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "C-rateOfRelevantCycle-lifeTest",
+            "valueJson": "{\"amperePerAmpereHourValue\":0.5,\"amperePerAmpereHour\":\"A/Ah\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "CapacityThresholdForExhaustion",
+            "valueJson": "{\"percentageValue\":80,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "TemperatureInformation",
+            "valueJson": "{\"celsiusValue\":23,\"degreeCelsius\":\"°C\"}",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "TemperatureRangeIdleStateLowerBoundary",
+            "valueJson": "{\"celsiusValue\":-20,\"degreeCelsius\":\"°C\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "TemperatureRangeIdleStateUpperBoundary",
+            "valueJson": "{\"celsiusValue\":55,\"degreeCelsius\":\"°C\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "PerformanceAndDurability",
+            "attribute": "InformationOnAccidents",
+            "valueJson": "\"urn:odatano:accidents:BAT-GOLD-01\"",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "BatteryCarbonFootprint",
+            "attribute": "ContributionOfRawMaterialAcquisitionAndPre-processingLifecycleStage",
+            "valueJson": "{\"kgCO2-equivalentPerKilowattHourValue\":21.3,\"kgCO2-equivalentPerKilowattHour\":\"kgCO2-eq/kWh\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryCarbonFootprint",
+            "attribute": "ContributionOfMainProductProductionLifecycleStage",
+            "valueJson": "{\"kgCO2-equivalentPerKilowattHourValue\":17.4,\"kgCO2-equivalentPerKilowattHour\":\"kgCO2-eq/kWh\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryCarbonFootprint",
+            "attribute": "ContributionOfDistributionLifecycleStage",
+            "valueJson": "{\"kgCO2-equivalentPerKilowattHourValue\":2.6,\"kgCO2-equivalentPerKilowattHour\":\"kgCO2-eq/kWh\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryCarbonFootprint",
+            "attribute": "ContributionOfEndOfLifeAndRecyclingLifecycleStage",
+            "valueJson": "{\"kgCO2-equivalentPerKilowattHourValue\":4.2,\"kgCO2-equivalentPerKilowattHour\":\"kgCO2-eq/kWh\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryCarbonFootprint",
+            "attribute": "WebLinkToPublicCarbonFootprintStudy",
+            "valueJson": "\"urn:odatano:docs:carbon-footprint-study-BAT-GOLD-01\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryMaterialsAndComposition",
+            "attribute": "CriticalRawMaterials",
+            "valueJson": "\"Cobalt (Co), Lithium (Li), Nickel (Ni), Natural graphite\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryMaterialsAndComposition",
+            "attribute": "HazardousSubstances",
+            "valueJson": "\"Lithium hexafluorophosphate (LiPF6) electrolyte salt\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "BatteryMaterialsAndComposition",
+            "attribute": "MaterialsUsedInCathodeAnodeAndElectrolyte",
+            "valueJson": "\"Cathode: NMC 811; Anode: Synthetic graphite; Electrolyte: LiPF6 in EC/EMC\"",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "BatteryMaterialsAndComposition",
+            "attribute": "ImpactOfSubstancesOnEnvironmentHumanHealthSafetyPersons",
+            "valueJson": "\"Contains substances of very high concern; see safety data sheet for handling and end-of-life guidance.\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "DismantlingInformation-ManualsForTheRemovalAndTheDisassemblyOfTheBatteryPack",
+            "valueJson": "\"urn:odatano:docs:disassembly-manual-BAT-GOLD-01\"",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "PartNumbersForComponents",
+            "valueJson": "\"urn:odatano:parts:PowerCell-EV-75\"",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "InformationOnSourcesOfSpareParts",
+            "valueJson": "\"urn:odatano:parts:spares-info\"",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "SafetyMeasures",
+            "valueJson": "\"urn:odatano:docs:safety-measures-BAT-GOLD-01\"",
+            "accessClass": "legitimateInterest"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "Pre-consumerRecycledNickelShare",
+            "valueJson": "{\"percentageValue\":4,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "Pre-consumerRecycledCobaltShare",
+            "valueJson": "{\"percentageValue\":3.5,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "Pre-consumerRecycledLithiumShare",
+            "valueJson": "{\"percentageValue\":2,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "Post-consumerRecycledNickelShare",
+            "valueJson": "{\"percentageValue\":6.1,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "Post-consumerRecycledLithiumShare",
+            "valueJson": "{\"percentageValue\":7.9,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "RecycledLeadShare",
+            "valueJson": "{\"percentageValue\":0,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "RenewableContentShare",
+            "valueJson": "{\"percentageValue\":0,\"percent\":\"%\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "InformationOnTheRoleOfEnd-usersInContributingToWastePrevention",
+            "valueJson": "\"urn:odatano:docs:enduser-waste-prevention\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "InformationOnTheRoleOfEnd-usersInContributingToTheSeparateCollectionOfWasteBatteries",
+            "valueJson": "\"urn:odatano:docs:enduser-separate-collection\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "CircularityAndResourceEfficiency",
+            "attribute": "InformationOnBatteryCollectionPreparationForSecondLifeAndOnTreatmentAtEndOfLife",
+            "valueJson": "\"urn:odatano:docs:enduser-end-of-life-treatment\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SupplyChainDueDiligence",
+            "attribute": "InformationOfDueDiligenceReport",
+            "valueJson": "\"urn:odatano:docs:supply-chain-due-diligence-BAT-GOLD-01\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SupplyChainDueDiligence",
+            "attribute": "ThirdPartyAssurancesOfRecognisedSchemes",
+            "valueJson": "\"Cobalt: Responsible Minerals Initiative (RMI) audited\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SupplyChainDueDiligence",
+            "attribute": "SupplyChainIndices",
+            "valueJson": "\"Cobalt origin: Australia (60%), Canada (40%)\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "SeparateCollectionSymbol",
+            "valueJson": "\"urn:odatano:labels:weee-symbol\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "SymbolsForCadmiumAndLead",
+            "valueJson": "\"urn:odatano:labels:cadmium-lead-symbol\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "CarbonFootprintLabel",
+            "valueJson": "\"urn:odatano:labels:carbon-footprint-class-B\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "ExtinguishingAgent",
+            "valueJson": "{\"agentFireClass\":\"Class B / Class E\",\"extinguishingAgent\":\"CO2 or dry powder; water fog acceptable for cooling\"}",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "MeaningOfLabelsAndSymbols",
+            "valueJson": "\"Label legend at https://www.cellco.example/labels\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "EUDeclarationOfConformity",
+            "valueJson": "\"urn:odatano:compliance:EU-DoC-BAT-GOLD-01\"",
+            "accessClass": "public"
+          },
+          {
+            "section": "SymbolsLabelsAndDocumentationOfConformity",
+            "attribute": "ResultsOfTestReportsProvingCompliance",
+            "valueJson": "\"urn:odatano:compliance:test-reports-BAT-GOLD-01\"",
+            "accessClass": "authority"
+          }
+        ]
+      },
+      "canonicalPayload": "{\"attributes\":[{\"accessClass\":\"legitimateInterest\",\"attribute\":\"BatteryStatus\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"{\\\"batteryStatusValues\\\":\\\"original\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"C-rateOfRelevantCycle-lifeTest\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"amperePerAmpereHourValue\\\":0.5,\\\"amperePerAmpereHour\\\":\\\"A/Ah\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"CapacityFade\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":0.8,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"CapacityThresholdForExhaustion\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":80,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"CarbonFootprintLabel\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"\\\"urn:odatano:labels:carbon-footprint-class-B\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"ContributionOfDistributionLifecycleStage\",\"section\":\"BatteryCarbonFootprint\",\"valueJson\":\"{\\\"kgCO2-equivalentPerKilowattHourValue\\\":2.6,\\\"kgCO2-equivalentPerKilowattHour\\\":\\\"kgCO2-eq/kWh\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"ContributionOfEndOfLifeAndRecyclingLifecycleStage\",\"section\":\"BatteryCarbonFootprint\",\"valueJson\":\"{\\\"kgCO2-equivalentPerKilowattHourValue\\\":4.2,\\\"kgCO2-equivalentPerKilowattHour\\\":\\\"kgCO2-eq/kWh\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"ContributionOfMainProductProductionLifecycleStage\",\"section\":\"BatteryCarbonFootprint\",\"valueJson\":\"{\\\"kgCO2-equivalentPerKilowattHourValue\\\":17.4,\\\"kgCO2-equivalentPerKilowattHour\\\":\\\"kgCO2-eq/kWh\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"ContributionOfRawMaterialAcquisitionAndPre-processingLifecycleStage\",\"section\":\"BatteryCarbonFootprint\",\"valueJson\":\"{\\\"kgCO2-equivalentPerKilowattHourValue\\\":21.3,\\\"kgCO2-equivalentPerKilowattHour\\\":\\\"kgCO2-eq/kWh\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"CriticalRawMaterials\",\"section\":\"BatteryMaterialsAndComposition\",\"valueJson\":\"\\\"Cobalt (Co), Lithium (Li), Nickel (Ni), Natural graphite\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"Cycle-lifeReferenceTest\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"\\\"IEC 62660-1:2018 / UN 38.3\\\"\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"DismantlingInformation-ManualsForTheRemovalAndTheDisassemblyOfTheBatteryPack\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:docs:disassembly-manual-BAT-GOLD-01\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"EconomicOperatorInformation\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"{\\\"name\\\":\\\"CellCo_GmbH\\\",\\\"registeredTradeNameOrRegisteredTrademark\\\":\\\"CellCo\\\",\\\"postalAddress\\\":\\\"Zellstraße 12, 01067 Dresden, Germany\\\",\\\"webAddress\\\":\\\"https://www.cellco.example\\\",\\\"e-mailAddress\\\":\\\"compliance@cellco.example\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"EnergyRoundTripEfficiencyFade\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":0.4,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"EUDeclarationOfConformity\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"\\\"urn:odatano:compliance:EU-DoC-BAT-GOLD-01\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"ExpectedLifetime-NumberOfCharge-dischargeCycles\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"1800\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"ExpectedLifetimeInCalendarYears\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"12\"},{\"accessClass\":\"public\",\"attribute\":\"ExtinguishingAgent\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"{\\\"agentFireClass\\\":\\\"Class B / Class E\\\",\\\"extinguishingAgent\\\":\\\"CO2 or dry powder; water fog acceptable for cooling\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"HazardousSubstances\",\"section\":\"BatteryMaterialsAndComposition\",\"valueJson\":\"\\\"Lithium hexafluorophosphate (LiPF6) electrolyte salt\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"ImpactOfSubstancesOnEnvironmentHumanHealthSafetyPersons\",\"section\":\"BatteryMaterialsAndComposition\",\"valueJson\":\"\\\"Contains substances of very high concern; see safety data sheet for handling and end-of-life guidance.\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"InformationOfDueDiligenceReport\",\"section\":\"SupplyChainDueDiligence\",\"valueJson\":\"\\\"urn:odatano:docs:supply-chain-due-diligence-BAT-GOLD-01\\\"\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"InformationOnAccidents\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"\\\"urn:odatano:accidents:BAT-GOLD-01\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"InformationOnBatteryCollectionPreparationForSecondLifeAndOnTreatmentAtEndOfLife\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:docs:enduser-end-of-life-treatment\\\"\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"InformationOnSourcesOfSpareParts\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:parts:spares-info\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"InformationOnTheRoleOfEnd-usersInContributingToTheSeparateCollectionOfWasteBatteries\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:docs:enduser-separate-collection\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"InformationOnTheRoleOfEnd-usersInContributingToWastePrevention\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:docs:enduser-waste-prevention\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"InitialInternalResistanceOfBatteryCellAndPackModuleRecommended\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"ohmValue\\\":14,\\\"ohm\\\":\\\"Ohm\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"InitialRoundTripEnergyEfficiency\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":96,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"InternalResistanceIncreaseOfPackCellAndModuleRecommended\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":2.1,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"ManufacturerInformation\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"{\\\"name\\\":\\\"CellCo_Manufacturing_GmbH\\\",\\\"registeredTradeNameOrRegisteredTrademark\\\":\\\"CellCo Manufacturing\\\",\\\"postalAddress\\\":\\\"Werkallee 3, 01069 Dresden, Germany\\\",\\\"webAddress\\\":\\\"https://www.cellco-manufacturing.example\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"ManufacturingPlace\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"\\\"Dresden, Germany\\\"\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"MaterialsUsedInCathodeAnodeAndElectrolyte\",\"section\":\"BatteryMaterialsAndComposition\",\"valueJson\":\"\\\"Cathode: NMC 811; Anode: Synthetic graphite; Electrolyte: LiPF6 in EC/EMC\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"MaximumPermittedBatteryPower\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"wattValue\\\":150000,\\\"watt\\\":\\\"W\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"MaximumVoltage\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"voltValue\\\":420,\\\"volt\\\":\\\"V\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"MeaningOfLabelsAndSymbols\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"\\\"Label legend at https://www.cellco.example/labels\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"MinimumVoltage\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"voltValue\\\":280,\\\"volt\\\":\\\"V\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"NominalVoltage\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"voltValue\\\":370,\\\"volt\\\":\\\"V\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"NumberOfFullChargingAndDischargingCycles\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"14\"},{\"accessClass\":\"public\",\"attribute\":\"OriginalPowerCapability\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"wattValueAt80SoC\\\":150000,\\\"wattValueAt20SoC\\\":120000,\\\"watt\\\":\\\"W\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"PartNumbersForComponents\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:parts:PowerCell-EV-75\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"Post-consumerRecycledLithiumShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":7.9,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"Post-consumerRecycledNickelShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":6.1,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"PowerFade\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":0.9,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"Pre-consumerRecycledCobaltShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":3.5,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"Pre-consumerRecycledLithiumShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":2,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"Pre-consumerRecycledNickelShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":4,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"RatedCapacity\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"amperehourMiliamperehourValue\\\":200,\\\"ampereHourMiliamperehour\\\":\\\"Ah\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"RecycledLeadShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":0,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"RenewableContentShare\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"{\\\"percentageValue\\\":0,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"authority\",\"attribute\":\"ResultsOfTestReportsProvingCompliance\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"\\\"urn:odatano:compliance:test-reports-BAT-GOLD-01\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"RoundTripEnergyEfficiencyAt50OfCycleLife\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":94.2,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"SafetyMeasures\",\"section\":\"CircularityAndResourceEfficiency\",\"valueJson\":\"\\\"urn:odatano:docs:safety-measures-BAT-GOLD-01\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"SeparateCollectionSymbol\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"\\\"urn:odatano:labels:weee-symbol\\\"\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"StateOfCertifiedEnergySOCE\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":99.2,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"StateOfChargeSoC\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"percentageValue\\\":64,\\\"percent\\\":\\\"%\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"SupplyChainIndices\",\"section\":\"SupplyChainDueDiligence\",\"valueJson\":\"\\\"Cobalt origin: Australia (60%), Canada (40%)\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"SymbolsForCadmiumAndLead\",\"section\":\"SymbolsLabelsAndDocumentationOfConformity\",\"valueJson\":\"\\\"urn:odatano:labels:cadmium-lead-symbol\\\"\"},{\"accessClass\":\"legitimateInterest\",\"attribute\":\"TemperatureInformation\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"celsiusValue\\\":23,\\\"degreeCelsius\\\":\\\"°C\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"TemperatureRangeIdleStateLowerBoundary\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"celsiusValue\\\":-20,\\\"degreeCelsius\\\":\\\"°C\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"TemperatureRangeIdleStateUpperBoundary\",\"section\":\"PerformanceAndDurability\",\"valueJson\":\"{\\\"celsiusValue\\\":55,\\\"degreeCelsius\\\":\\\"°C\\\"}\"},{\"accessClass\":\"public\",\"attribute\":\"ThirdPartyAssurancesOfRecognisedSchemes\",\"section\":\"SupplyChainDueDiligence\",\"valueJson\":\"\\\"Cobalt: Responsible Minerals Initiative (RMI) audited\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"UniqueEconomicOperatorIdentifier\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"\\\"EORI-DE-CELLCO-001\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"UniqueFacilityIdentifier\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"\\\"GLN-FAC-4098765432101\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"WarrantyPeriodOfTheBattery\",\"section\":\"IdentifiersAndProductData\",\"valueJson\":\"\\\"2034-07-01\\\"\"},{\"accessClass\":\"public\",\"attribute\":\"WebLinkToPublicCarbonFootprintStudy\",\"section\":\"BatteryCarbonFootprint\",\"valueJson\":\"\\\"urn:odatano:docs:carbon-footprint-study-BAT-GOLD-01\\\"\"}],\"batteries\":[{\"capacityKwh\":75,\"carbonFootprintKgCO2\":3412.75,\"cellChemistry\":\"NMC-811\",\"cycleLife\":4200,\"leadContentPpm\":0,\"recycledContentPct\":12.5,\"roundTripEfficiencyPct\":92.5,\"serialNumber\":\"SN-GOLD-001\",\"supplierName\":\"CellCo GmbH\"}],\"diligenceDocs\":[{\"docType\":\"audit\",\"fileName\":\"audit.pdf\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"payloadVersion\":2,\"recycledMaterials\":[{\"material\":\"Co\",\"recycledPercentage\":16,\"sourceSupplierName\":\"RecyCo\"},{\"material\":\"Li\",\"recycledPercentage\":6.5}]}",
+      "payloadHash": "60bc73d3d2d9c836dfa360122a8b774977b68d959f0878caafb31f2abc7176df"
+    },
+    "noAttributes": {
+      "inputs": {
+        "batteries": [
+          {
+            "serialNumber": "SN-GOLD-001",
+            "cellChemistry": "NMC-811",
+            "capacityKwh": 75,
+            "carbonFootprintKgCO2": "3412.75",
+            "supplierName": "CellCo GmbH",
+            "recycledContentPct": 12.5,
+            "cycleLife": 4200,
+            "roundTripEfficiencyPct": 92.5,
+            "leadContentPpm": 0
+          }
+        ],
+        "recycledMaterials": [],
+        "diligenceDocs": [],
+        "attributes": []
+      },
+      "canonicalPayload": "{\"attributes\":[],\"batteries\":[{\"capacityKwh\":75,\"carbonFootprintKgCO2\":3412.75,\"cellChemistry\":\"NMC-811\",\"cycleLife\":4200,\"leadContentPpm\":0,\"recycledContentPct\":12.5,\"roundTripEfficiencyPct\":92.5,\"serialNumber\":\"SN-GOLD-001\",\"supplierName\":\"CellCo GmbH\"}],\"diligenceDocs\":[],\"payloadVersion\":2,\"recycledMaterials\":[]}",
+      "payloadHash": "ead6422990a0076b7dae5ce203e5fc8f5d07f707f227a5d8acb5bff6b5e9610a"
+    },
+    "minimal": {
+      "inputs": {
+        "batteries": [],
+        "recycledMaterials": [],
+        "diligenceDocs": [],
+        "attributes": []
+      },
+      "canonicalPayload": "{\"attributes\":[],\"batteries\":[],\"diligenceDocs\":[],\"payloadVersion\":2,\"recycledMaterials\":[]}",
+      "payloadHash": "21e4d0f2705148e26ea16431ce8e12f7a3cd52ced55059457a019a596b95180c"
+    }
+  },
+  "grantee": [
+    {
+      "did": "did:web:cellco.example",
+      "id": "41eef5d5310ffa186650843243f623469a13db336e68db96a51e645dd820e1c6"
+    },
+    {
+      "did": "BPNL000000000001",
+      "id": "79e8b57c2ae8cd814b5ac3a5b2a216275465b47063297d126e76cab155b0c439"
+    },
+    {
+      "did": "did:example:123456789abcdefghi",
+      "id": "58381125ed86de025158eb875c457806741280f2b19e2d3fd5c2aeeede44ba66"
+    }
+  ],
+  "fieldKeys": {
+    "carbonFootprintKgCO2": "964482efc2c71ad3714958074d22608e0b4857bc528dfe588cc40566250c2243",
+    "capacityKwh": "11be5ef3a19dcfa316e30398592cc1b458407d787f7378211c34b8bac3758b1c",
+    "recycledContentPct": "c71b38f9b11405f410e804e36d1365798817ff981e4435eb8ea3732f4e6e1266",
+    "cycleLife": "3a77c3c38cd9675b43edf3b595dafc84c9def90e3f6b391511eae08b5612b876",
+    "roundTripEfficiencyPct": "2402bd699696a1e125b1ea201c14e394d37a1684a00945aadf4602cbe919e5dc",
+    "leadContentPpm": "1fa4e35dd1c1b17ebbe6ed632d0ad5976aed6b669df4046074b22165c8134467",
+    "recycledCoPct": "9e1c49c2b3a9e794b5b83cf72c9eb5dbb4b7143ada50b5e51b06ca3bd051207c",
+    "recycledLiPct": "25ea8edb3417830fb14997017d4e60e2fcb30e6dee0c11341ee38d0e3f96fb3d",
+    "recycledNiPct": "b97a68514a2b868eadbd93e91acff2def6398729ad7d10a2b18515470e89144f",
+    "CapacityFade": "017bef85f3269daa9dcf7ca27af723dbfea5a4925556a0fedf712a4464d98344",
+    "RemainingCapacity": "f05ef65914e8ed6f8a4edfa6587f5fc43cb94fed14a272422d64cc7865b45629",
+    "NumberOfFullChargingAndDischargingCycles": "24728738a41a561cc6b03d981c5e2a261f44cd20c697ab90b9877b91167b6c70",
+    "cellChemistry": "7a7bc658098865e41b3fecfcf842e9786d180596261e5d95793c0cc4fbb7e8b0"
+  },
+  "scaleValue": [
+    {
+      "raw": 3412.75,
+      "scaled": 3412750
+    },
+    {
+      "raw": "3412.75",
+      "scaled": 3412750
+    },
+    {
+      "raw": 0.0005,
+      "scaled": 1
+    },
+    {
+      "raw": 92.5,
+      "scaled": 92500
+    },
+    {
+      "raw": "0",
+      "scaled": 0
+    }
+  ],
+  "cipher": {
+    "masterKeyHex": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
+    "passportId": "BAT-GOLD-01",
+    "plaintext": "{\"golden\":\"vector\",\"n\":1}",
+    "blobBase64": "yCFzFvDO/F1oCTxrZh2rM5kQA0esKCXuw1BqlB2Xw2VJYyl7hZAh7AtrYJuO3QUEeaTYa8c="
+  },
+  "daypassContentRoot": {
+    "values": {
+      "carbonFootprintKgCO2": 3412.75,
+      "capacityKwh": 75,
+      "recycledContentPct": 12.5,
+      "cycleLife": 4200,
+      "roundTripEfficiencyPct": 92.5,
+      "leadContentPpm": 0,
+      "recycledCoPct": 16,
+      "recycledLiPct": 6.5,
+      "recycledNiPct": 4
+    },
+    "contentRoot": "7ff4588e836b8909a65b51c78ea9481573f5ff4c5479e9d84da03a0bbd86a585",
+    "proofCapacityKwh": {
+      "fieldKey": "11be5ef3a19dcfa316e30398592cc1b458407d787f7378211c34b8bac3758b1c",
+      "value": "75000",
+      "siblings": [
+        "b9bc13f3fe3125a58a047012f8acc7b78836e71086d56cfd6168b90fb7407c42",
+        "984aa830d49a7b1c5c8393e868aeec8eb4c904fef142c2e147dbb3a53f476d8f",
+        "a32397173755527a6ee2e89277aa51a675ecd10bdde496ad52cecb17155a2a8b",
+        "ca384aae8746d70106a688c49dd276ddd0d0403d6d68ab503330c6d7bb3bcd20"
+      ],
+      "dirs": [
+        false,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "daypassPayloadV1": {
+    "payload": {
+      "passportId": "BAT-GOLD-01",
+      "manufacturerId": "DE-CELLCO-001",
+      "batteryCategory": "EV",
+      "model": "PowerCell EV-75",
+      "manufactureDate": "2026-07-01",
+      "weightKg": 432.5,
+      "performanceClass": "B",
+      "batteries": [
+        {
+          "serialNumber": "SN-GOLD-001",
+          "cellChemistry": "NMC-811",
+          "capacityKwh": 75,
+          "carbonFootprintKgCO2": 3412.75,
+          "supplierName": "CellCo GmbH",
+          "recycledContentPct": 12.5,
+          "cycleLife": 4200,
+          "roundTripEfficiencyPct": 92.5,
+          "leadContentPpm": 0
+        }
+      ],
+      "recycledMaterials": [
+        {
+          "material": "Co",
+          "recycledPercentage": 16,
+          "sourceSupplierName": "RecyCo"
+        },
+        {
+          "material": "Li",
+          "recycledPercentage": 6.5
+        }
+      ],
+      "diligenceDocs": [
+        {
+          "docType": "audit",
+          "storageRef": "doc://audit",
+          "sha256Hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    "canonicalPayload": "{\"batteries\":[{\"capacityKwh\":75,\"carbonFootprintKgCO2\":3412.75,\"cellChemistry\":\"NMC-811\",\"cycleLife\":4200,\"leadContentPpm\":0,\"recycledContentPct\":12.5,\"roundTripEfficiencyPct\":92.5,\"serialNumber\":\"SN-GOLD-001\",\"supplierName\":\"CellCo GmbH\"}],\"batteryCategory\":\"EV\",\"diligenceDocs\":[{\"docType\":\"audit\",\"sha256Hex\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"storageRef\":\"doc://audit\"}],\"manufactureDate\":\"2026-07-01\",\"manufacturerId\":\"DE-CELLCO-001\",\"model\":\"PowerCell EV-75\",\"passportId\":\"BAT-GOLD-01\",\"performanceClass\":\"B\",\"recycledMaterials\":[{\"material\":\"Co\",\"recycledPercentage\":16,\"sourceSupplierName\":\"RecyCo\"},{\"material\":\"Li\",\"recycledPercentage\":6.5}],\"weightKg\":432.5}",
+    "payloadHash": "f6a26be84ef9788a41af5cd99a625f3dc58d931f90aa4400b9753c9f63f50bfc"
+  }
+}
