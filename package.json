@@ -1,6 +1,6 @@
 {
   "name": "@odatano/dpp-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Chain-agnostic EU Battery Regulation Digital Product Passport domain SDK: canonical hashing, payload projection v2, field registries, merkle proofs, disclosure tiers.",
   "license": "Apache-2.0",
   "repository": {
@@ -101,6 +101,7 @@
     "dist/**/*.d.ts",
     "dist/**/*.d.mts",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {

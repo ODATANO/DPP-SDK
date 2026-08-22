@@ -62,7 +62,7 @@ chain, in any app, which is the whole point.
 | `cipher` | `encryptPayload`, `decryptPayload`, `masterKeyFromHex`, `assertEncryptionKey` (Node only) |
 | `tier` | `Tier`, `maxTier`, `levelToTier`, `redactPassport`, `redactBattery`, `redactRecycled`, `attributeVisible` |
 | `fields` | `PROVABLE_FIELDS`, `VALUE_SCALE`, `scaleValue`, `fieldKeyHex`, `fieldValuesFor`, hex helpers |
-| `merkle` | `buildTree` (pluggable node hash), `proofFor`, `verifyProof`, `MERKLE_DEPTH` |
+| `merkle` | `buildTree` (pluggable node hash), `proofFor`, `verifyProof`, `padToWidth`, `depthForWidth` / `widthForDepth`, `MERKLE_DEPTH` (default 4) |
 | `grantee` | `granteeIdForDid`, `normalizeGrantee` |
 | `http` | security-header and correlation-id helpers (Node only) |
 | `battery/lifecycle` | `validateTransition`, `parseBatteryStatus`, `encodeBatteryStatus`, `dppStatusFor` |
@@ -80,6 +80,26 @@ chain, in any app, which is the whole point.
 
 Subpaths not marked "Node only" are dependency-light and bundle for the
 browser.
+
+## Content-tree width
+
+The tree walk is depth-derived, so a panel wider than the default 16 slots
+needs no fork: pad the ordered slot layer to the width and build.
+
+```ts
+import { buildTree, proofFor, padToWidth, depthForWidth } from '@odatano/dpp-sdk/merkle';
+
+const leaves = padToWidth(realLeaves, 32, (i) => emptyLeafFor(i)); // throws if realLeaves is longer
+const tree = buildTree(leaves, nodeHash);                          // depth 5, 32 slots
+const path = proofFor(tree.levels, slotIndex);                     // 5 siblings, 5 dirs
+depthForWidth(32); // 5
+```
+
+The width is part of the root's identity: the same values under 16 and 32
+slots produce different roots, so a document family picks one width and
+keeps it. Anchoring against NIGHTGATE additionally needs the matching vault
+lineage (`attestation-vault` for 16, `attestation-vault-32` for 32), and
+cross-root proofs only relate documents of the same width.
 
 ## Stability
 
