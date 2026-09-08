@@ -1,9 +1,9 @@
 /**
  * S/4HANA material-document (API_MATERIAL_DOCUMENT_SRV, OData V2) to
- * PassportInput mapping, wrapped in the CloudEvent contract of
- * POST /api/v1/passport/erp-events. Annex XIII product data comes from an
- * injected product-master lookup keyed by Material number.
- * PURE module: no fetch, no clock, no randomness.
+ * passport-input mapping, wrapped in a CloudEvent envelope. Product data
+ * comes from an injected product master keyed by Material number; its head
+ * fields and child collections are copied verbatim, so the mapper is
+ * product-neutral. PURE module: no fetch, no clock, no randomness.
  */
 
 import crypto from 'node:crypto';
@@ -33,53 +33,46 @@ export interface S4MaterialDocumentHeader {
     to_MaterialDocumentItem?: { results: S4MaterialDocumentItem[] } | S4MaterialDocumentItem[];
 }
 
-// --- Product master (the non-ERP Annex XIII side) ----------------------------
+// --- Product master (the non-ERP regulatory side) ----------------------------
 
 export interface ProductMasterEntry {
-    manufacturerId: string;
-    batteryCategory: string;              // EV | INDUSTRIAL | LMT | STATIONARY | INDUSTRIAL_NO_BMS
     /** Optional when S/4 product enrichment supplies the description instead. */
     model?: string;
-    performanceClass: string;             // A..G
     /** Optional when S/4 product enrichment supplies the net weight instead. */
     weightKg?: number;
-    battery: {
-        cellChemistry: string;
-        capacityKwh: number;
-        carbonFootprintKgCO2: number;
-        supplierName: string;
-    };
-    recycledMaterials: Array<{ material: string; recycledPercentage: number; sourceSupplierName: string }>;
-    diligenceDocs?: Array<{ docType: string }>;
+    /** Head-row columns copied verbatim onto the passport input (manufacturerId, category, ...). */
+    head: Record<string, unknown>;
+    /** Child collections copied verbatim; the serial-bearing child gets the serial injected. */
+    children: Record<string, Array<Record<string, unknown>>>;
 }
 
 /** Keyed by S/4 Material number, exactly as it appears on the document item. */
 export type ProductMaster = Record<string, ProductMasterEntry>;
 
+export interface MappingOptions {
+    /** Passport id prefix (e.g. BAT); ids stay short for the EU registry's 50-char UPI cap. */
+    idPrefix: string;
+    /** Where the per-item serial number is injected (first row of that child). */
+    serial?: { child: string; column: string };
+}
+
 // --- Output shapes -----------------------------------------------------------
 
-/** The flat shape `createPassport(passportJson)` consumes (see erp-ingest e2e). */
-export interface PassportInput {
+/** Flat passport input: fixed head, then the master's head fields and children. */
+export type PassportInput = {
     passportId: string;
-    manufacturerId: string;
-    batteryCategory: string;
     model: string;
     manufactureDate: string;              // YYYY-MM-DD
     weightKg: number;
-    performanceClass: string;
-    batteries: Array<ProductMasterEntry['battery'] & { serialNumber: string }>;
-    recycledMaterials: ProductMasterEntry['recycledMaterials'];
-    diligenceDocs: Array<{ docType: string }>;
-}
+} & Record<string, unknown>;
 
-/** Wire contract of POST /api/v1/passport/erp-events (server.ts checks `type`). */
-export const ERP_EVENT_TYPE = 'com.odatano.equinox.goodsreceipt.created';
+export const DEFAULT_ERP_EVENT_TYPE = 'com.odatano.erp.goodsreceipt.created';
 
 export interface ErpCloudEvent {
     specversion: '1.0';
     id: string;
     source: string;
-    type: typeof ERP_EVENT_TYPE;
+    type: string;
     time: string;
     data: PassportInput;
 }
@@ -127,15 +120,21 @@ export function goodsReceiptItems(
 const sanitizeId = (s: string): string =>
     s.toUpperCase().replace(/[^A-Z0-9]+/g, '').slice(0, 18);
 
-/** Deterministic passport id per document item, so re-polls are idempotent no-ops.
- * Kept short: the EU registry caps the UPI URL at 50 chars. */
-export function passportIdFor(item: S4MaterialDocumentItem): string {
-    return `BAT-${sanitizeId(item.Material)}-${sanitizeId(item.MaterialDocument)}${sanitizeId(item.MaterialDocumentItem)}`;
+/** Deterministic passport id per document item, so re-polls are idempotent no-ops. */
+export function passportIdFor(item: S4MaterialDocumentItem, idPrefix: string): string {
+    return `${idPrefix}-${sanitizeId(item.Material)}-${sanitizeId(item.MaterialDocument)}${sanitizeId(item.MaterialDocumentItem)}`;
 }
 
 /** Stable per-document-item key for the bridge's seen-state. */
 export function docItemKey(item: S4MaterialDocumentItem): string {
     return `${item.MaterialDocumentYear}/${item.MaterialDocument}/${item.MaterialDocumentItem}`;
+}
+
+/** Serial number per item: batch when present, else document + item. */
+export function serialNumberFor(item: S4MaterialDocumentItem): string {
+    return item.Batch
+        ? `SN-${sanitizeId(item.Batch)}`
+        : `SN-${sanitizeId(item.MaterialDocument)}-${sanitizeId(item.MaterialDocumentItem)}`;
 }
 
 // --- S/4 product-master enrichment (API_PRODUCT_SRV) -------------------------
@@ -172,11 +171,12 @@ export function applyProductData(entry: ProductMasterEntry, product?: S4ProductD
 
 // --- Mapping -----------------------------------------------------------------
 
-/** Map one goods-receipt document item to the flat PassportInput.
+/** Map one goods-receipt document item to the flat passport input.
  * Throws when the material has no product-master entry. */
 export function materialDocumentToPassportInput(
     { header, item }: GoodsReceiptDocItem,
-    master: ProductMaster
+    master: ProductMaster,
+    opts: MappingOptions
 ): PassportInput {
     const entry = master[item.Material];
     if (!entry) throw new Error(`no product-master entry for material '${item.Material}'`);
@@ -192,25 +192,24 @@ export function materialDocumentToPassportInput(
         throw new Error(`document ${docItemKey(item)} has no usable manufacture/posting date`);
     }
 
-    const serialNumber = item.Batch
-        ? `SN-${sanitizeId(item.Batch)}`
-        : `SN-${sanitizeId(item.MaterialDocument)}-${sanitizeId(item.MaterialDocumentItem)}`;
+    const children: Record<string, Array<Record<string, unknown>>> = {};
+    for (const [key, rows] of Object.entries(entry.children)) children[key] = rows.map((r) => ({ ...r }));
+    if (opts.serial) {
+        const rows = (children[opts.serial.child] ??= [{}]);
+        rows[0] = { [opts.serial.column]: serialNumberFor(item), ...rows[0] };
+    }
 
     return {
-        passportId: passportIdFor(item),
-        manufacturerId: entry.manufacturerId,
-        batteryCategory: entry.batteryCategory,
+        ...entry.head,
+        passportId: passportIdFor(item, opts.idPrefix),
         model: entry.model,
         manufactureDate,
         weightKg: entry.weightKg,
-        performanceClass: entry.performanceClass,
-        batteries: [{ serialNumber, ...entry.battery }],
-        recycledMaterials: entry.recycledMaterials,
-        diligenceDocs: entry.diligenceDocs ?? [{ docType: 'supply-chain-due-diligence-report' }]
+        ...children,
     };
 }
 
-/** One row of the cockpit's goods-receipt list (ProducerService.s4GoodsReceipts). */
+/** One row of a cockpit's goods-receipt list. */
 export interface GoodsReceiptListRow {
     docKey: string;
     material: string;
@@ -218,17 +217,19 @@ export interface GoodsReceiptListRow {
     passportId: string;
     status: 'ready' | 'exists' | 'unmapped';
     model: string | null;
-    batteryCategory: string | null;
     weightKg: number | null;
-    passportJson: string | null;    // ready rows carry the exact createPassport input
+    /** The master's head fields for ready rows (category etc.). */
+    head: Record<string, unknown> | null;
+    passportJson: string | null;    // ready rows carry the exact passport input
 }
 
 /** Flatten fetched documents into cockpit list rows: 'ready' carries a serialized
- * PassportInput, 'exists' = id already has a passport, 'unmapped' = not in the master. */
+ * passport input, 'exists' = id already has a passport, 'unmapped' = not in the master. */
 export function buildReceiptRows(
     headers: S4MaterialDocumentHeader[],
     master: ProductMaster,
     existingIds: ReadonlySet<string>,
+    opts: MappingOptions,
     movementTypes?: readonly string[]
 ): GoodsReceiptListRow[] {
     return goodsReceiptItems(headers, movementTypes).map((r) => {
@@ -236,40 +237,40 @@ export function buildReceiptRows(
             docKey: docItemKey(r.item),
             material: r.item.Material,
             postingDate: parseS4Date(r.header.PostingDate) ?? parseS4Date(r.header.DocumentDate),
-            passportId: passportIdFor(r.item)
+            passportId: passportIdFor(r.item, opts.idPrefix)
         };
         try {
-            const input = materialDocumentToPassportInput(r, master);
+            const input = materialDocumentToPassportInput(r, master, opts);
             return {
                 ...base,
                 status: existingIds.has(base.passportId) ? 'exists' as const : 'ready' as const,
                 model: input.model,
-                batteryCategory: input.batteryCategory,
                 weightKg: input.weightKg,
+                head: master[r.item.Material].head,
                 passportJson: JSON.stringify(input)
             };
         } catch {
-            return { ...base, status: 'unmapped' as const, model: null, batteryCategory: null, weightKg: null, passportJson: null };
+            return { ...base, status: 'unmapped' as const, model: null, weightKg: null, head: null, passportJson: null };
         }
     });
 }
 
-/** Wrap a PassportInput in the webhook's CloudEvent envelope. */
+/** Wrap a passport input in the webhook's CloudEvent envelope. */
 export function toCloudEvent(
     data: PassportInput,
-    opts: { source: string; id: string; time: string }
+    opts: { source: string; id: string; time: string; type?: string }
 ): ErpCloudEvent {
     return {
         specversion: '1.0',
         id: opts.id,
         source: opts.source,
-        type: ERP_EVENT_TYPE,
+        type: opts.type ?? DEFAULT_ERP_EVENT_TYPE,
         time: opts.time,
         data
     };
 }
 
-/** HMAC signature the webhook expects in the x-equinox-signature header. */
+/** HMAC signature the webhook expects in its signature header. */
 export function signErpEventBody(rawBody: Buffer | string, secret: string): string {
     return 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
 }

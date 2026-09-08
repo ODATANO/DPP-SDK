@@ -1,26 +1,10 @@
 /**
- * Dynamic (telemetry / SoH) attribute updates: allowlist, value validation,
- * guide-shape encoding, and as-of history reconstruction. Pure module.
+ * Dynamic (telemetry / SoH) attribute updates: allowlist, value validation
+ * and guide-shape encoding. Pure module.
  * Encoded value shapes MUST stay byte-identical to guide-defaults.ts. Casing
  * traps: RemainingCapacity's unit key is "ampereHourMiliamperehour" but
  * CapacityThroughput's is all-lowercase; TimeSpent times are bare integer minutes.
  */
-
-export interface DynamicUpdate { attribute: string; value: unknown }
-
-export interface CurrentRowLike {
-    section: string;
-    attribute: string;
-    valueJson: string;
-    accessClass: string;
-}
-
-export interface HistoryRowLike {
-    attribute: string;
-    valueJson: string;
-    version: number;
-    validFrom: string | Date;
-}
 
 type ValueKind =
     | 'pct'            // { percentageValue, percent: '%' }, 0..100
@@ -131,47 +115,4 @@ export function decodeDynamicValue(attribute: string, valueJson: unknown): numbe
         case 'wattPair':
         case 'text': return null;
     }
-}
-
-/** Last-wins dedupe by attribute name. */
-export function dedupeUpdates(updates: DynamicUpdate[]): DynamicUpdate[] {
-    const byAttribute = new Map<string, DynamicUpdate>();
-    for (const u of updates) byAttribute.set(u.attribute, u);
-    return [...byAttribute.values()];
-}
-
-const toIso = (v: string | Date): string => new Date(v).toISOString();
-
-/**
- * Reconstruct attribute rows as of a date: per attribute, highest version with
- * validFrom <= date (version breaks timestamp ties), else the lowest version
- * (creation baseline). lastChangeAt = latest applied non-baseline validFrom.
- * Compares normalized ISO strings in plain JS; no dialect-specific date SQL.
- */
-export function attributesAsOf(
-    current: CurrentRowLike[],
-    history: HistoryRowLike[],
-    asOfIso: string,
-): { rows: CurrentRowLike[]; lastChangeAt?: string } {
-    const asOf = toIso(asOfIso);
-    const byAttribute = new Map<string, HistoryRowLike[]>();
-    for (const h of history) {
-        const list = byAttribute.get(h.attribute);
-        if (list) list.push(h); else byAttribute.set(h.attribute, [h]);
-    }
-    let lastChangeAt: string | undefined;
-    const rows = current.map((row) => {
-        const versions = byAttribute.get(row.attribute);
-        if (!versions?.length) return row;
-        const qualifying = versions.filter((v) => toIso(v.validFrom) <= asOf);
-        const chosen = qualifying.length
-            ? qualifying.reduce((a, b) => (b.version > a.version ? b : a))
-            : versions.reduce((a, b) => (b.version < a.version ? b : a));
-        if (chosen.version > 0) {
-            const at = toIso(chosen.validFrom);
-            if (!lastChangeAt || at > lastChangeAt) lastChangeAt = at;
-        }
-        return { ...row, valueJson: chosen.valueJson };
-    });
-    return { rows, lastChangeAt };
 }

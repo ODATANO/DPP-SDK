@@ -5,7 +5,9 @@ import {
     DEFAULT_SLOT_WIDTH, VAULT_SLOT_WIDTHS, depthForWidth, widthForDepth, padToWidth
 } from '../../src/merkle';
 import { blake2b256Bytes } from '../../src/hash';
-import { fieldKeyHex, fromHex32, scaleValue, u64be, PROVABLE_FIELDS } from '../../src/fields';
+import { fieldKeyHex, scaleValue } from '../../src/fields';
+import { fromHex32, u64be } from '../../src/bytes';
+import { BATTERY_PANEL } from '../../src/battery/profile';
 
 // DAYPASS's chain-specific hashers, inlined HERE ONLY to pin the generic tree
 // walk against DAYPASS's historical golden root (see golden-vectors.test.ts).
@@ -23,7 +25,7 @@ const nodeHash = (l: Uint8Array, r: Uint8Array) => blake2b256Bytes(concat(DOMAIN
 const emptyLeaf = () => leafHash(fromHex32(fieldKeyHex('daypass/content-root/empty-leaf/v1')), 0n);
 
 function leavesFor(values: Record<string, number>, width: number = LEAF_COUNT): Uint8Array[] {
-    const real = PROVABLE_FIELDS.map((fieldName) => {
+    const real = BATTERY_PANEL.map((fieldName) => {
         const raw = values[fieldName];
         return raw != null
             ? leafHash(fromHex32(fieldKeyHex(fieldName)), BigInt(scaleValue(raw)))
@@ -47,7 +49,7 @@ describe('buildTree + proofFor + verifyProof', () => {
 
     it('every present leaf verifies against the root; siblings/dirs have depth entries', () => {
         for (const [field, raw] of Object.entries(values)) {
-            const idx = PROVABLE_FIELDS.indexOf(field as typeof PROVABLE_FIELDS[number]);
+            const idx = BATTERY_PANEL.indexOf(field as typeof BATTERY_PANEL[number]);
             const path = proofFor(tree.levels, idx);
             assert.equal(path.siblings.length, MERKLE_DEPTH);
             assert.equal(path.dirs.length, MERKLE_DEPTH);
@@ -57,7 +59,7 @@ describe('buildTree + proofFor + verifyProof', () => {
     });
 
     it('rejects a wrong value, wrong root and truncated path', () => {
-        const idx = PROVABLE_FIELDS.indexOf('capacityKwh');
+        const idx = BATTERY_PANEL.indexOf('capacityKwh');
         const path = proofFor(tree.levels, idx);
         const wrongLeaf = leafHash(fromHex32(fieldKeyHex('capacityKwh')), BigInt(scaleValue(76)));
         assert.equal(verifyProof(wrongLeaf, path, tree.rootHex, nodeHash), false);
@@ -67,7 +69,7 @@ describe('buildTree + proofFor + verifyProof', () => {
     });
 
     it('accepts a 0x-prefixed, mixed-case root', () => {
-        const idx = PROVABLE_FIELDS.indexOf('cycleLife');
+        const idx = BATTERY_PANEL.indexOf('cycleLife');
         const path = proofFor(tree.levels, idx);
         const leaf = leafHash(fromHex32(fieldKeyHex('cycleLife')), BigInt(scaleValue(1800)));
         assert.equal(verifyProof(leaf, path, '0x' + tree.rootHex.toUpperCase(), nodeHash), true);
@@ -112,7 +114,7 @@ describe('slot width parameterization', () => {
         const tree32 = buildTree(leavesFor(values, 32), nodeHash);
         assert.equal(tree32.levels.length, 6);
         assert.equal(tree32.levels[0].length, 32);
-        const idx = PROVABLE_FIELDS.indexOf('capacityKwh');
+        const idx = BATTERY_PANEL.indexOf('capacityKwh');
         const path = proofFor(tree32.levels, idx);
         assert.equal(path.siblings.length, 5);
         assert.equal(path.dirs.length, 5);

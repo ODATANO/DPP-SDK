@@ -1,7 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildGuideDocument, guideDppId } from '../../src/battery/guide-document';
-import { defaultGuideAttributes, hashableAttributes } from '../../src/battery/guide-defaults';
+import { defaultGuideAttributes } from '../../src/battery/guide-defaults';
+import { hashableAttributes } from '../../src/attributes';
 
 /**
  * The guide-document builder renders a real passport (typed fields plus

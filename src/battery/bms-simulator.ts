@@ -4,7 +4,7 @@
  * values. Values are RAW; the consumer encodes them into guide shapes.
  */
 
-import type { DynamicUpdate } from './attributes';
+import type { AttributeUpdate } from '../attributes';
 
 /** FNV-1a 32-bit hash of a string, normalized to [0, 1). */
 function jitter(key: string): number {
@@ -57,10 +57,10 @@ const CURVES: Record<string, (tick: number, j: number) => unknown> = {
 export const SIMULATED_ATTRIBUTES: readonly string[] = Object.keys(CURVES);
 
 /** Telemetry frame for one aging step; emits only attributes present on the passport. */
-export function generateTelemetry(seed: string, tick: number, presentAttributes: readonly string[]): DynamicUpdate[] {
+export function generateTelemetry(seed: string, tick: number, presentAttributes: readonly string[]): AttributeUpdate[] {
     if (!Number.isInteger(tick) || tick < 1) throw new Error('tick must be a positive integer');
     const present = new Set(presentAttributes);
-    const out: DynamicUpdate[] = [];
+    const out: AttributeUpdate[] = [];
     for (const [attribute, curve] of Object.entries(CURVES)) {
         if (!present.has(attribute)) continue;
         out.push({ attribute, value: curve(tick, jitter(`${seed}:${tick}:${attribute}`)) });

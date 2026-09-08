@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    BATTERY_STATUS_VALUES, ALLOWED_TRANSITIONS,
+    BATTERY_STATUS_VALUES, BATTERY_LIFECYCLE,
     validateTransition, parseBatteryStatus, encodeBatteryStatus, dppStatusFor,
 } from '../../src/battery/lifecycle';
 import { defaultGuideAttributes } from '../../src/battery/guide-defaults';
@@ -38,7 +38,7 @@ describe('battery lifecycle transitions', () => {
     });
 
     it('transition matrix only names known statuses', () => {
-        for (const [from, targets] of Object.entries(ALLOWED_TRANSITIONS)) {
+        for (const [from, targets] of Object.entries(BATTERY_LIFECYCLE.transitions)) {
             assert.equal((BATTERY_STATUS_VALUES as readonly string[]).includes(from), true);
             for (const t of targets) assert.equal((BATTERY_STATUS_VALUES as readonly string[]).includes(t), true);
         }

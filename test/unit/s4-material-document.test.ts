@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {
     parseS4Date, itemsOf, goodsReceiptItems, passportIdFor, docItemKey,
     materialDocumentToPassportInput, toCloudEvent, signErpEventBody,
-    applyProductData, buildReceiptRows, ERP_EVENT_TYPE,
-    type S4MaterialDocumentHeader, type ProductMaster
+    applyProductData, buildReceiptRows, DEFAULT_ERP_EVENT_TYPE,
+    type S4MaterialDocumentHeader, type ProductMaster, type MappingOptions
 } from '../../src/integrations/s4';
 import crypto from 'node:crypto';
 
@@ -69,24 +69,28 @@ const HEADERS: S4MaterialDocumentHeader[] = [
     }
 ];
 
+// A battery-shaped master, expressed through the product-neutral entry shape.
 const MASTER: ProductMaster = {
     'EV-BATTERY-75': {
-        manufacturerId: 'DE-CELLCO-001',
-        batteryCategory: 'EV',
         model: 'PowerCell EV-75',
-        performanceClass: 'B',
         weightKg: 432.5,
-        battery: {
-            cellChemistry: 'NMC-811',
-            capacityKwh: 75.0,
-            carbonFootprintKgCO2: 3412.75,
-            supplierName: 'CathodeWorks GmbH'
-        },
-        recycledMaterials: [
-            { material: 'Co', recycledPercentage: 16.5, sourceSupplierName: 'ReCobalt Recyclers SA' }
-        ]
+        head: { manufacturerId: 'DE-CELLCO-001', batteryCategory: 'EV', performanceClass: 'B' },
+        children: {
+            batteries: [{
+                cellChemistry: 'NMC-811',
+                capacityKwh: 75.0,
+                carbonFootprintKgCO2: 3412.75,
+                supplierName: 'CathodeWorks GmbH'
+            }],
+            recycledMaterials: [
+                { material: 'Co', recycledPercentage: 16.5, sourceSupplierName: 'ReCobalt Recyclers SA' }
+            ],
+            diligenceDocs: [{ docType: 'supply-chain-due-diligence-report' }],
+        }
     }
 };
+
+const OPTS: MappingOptions = { idPrefix: 'BAT', serial: { child: 'batteries', column: 'serialNumber' } };
 
 describe('parseS4Date', () => {
     it('parses the V2 /Date(ms)/ wrapper to YYYY-MM-DD', () => {
@@ -131,8 +135,8 @@ describe('goodsReceiptItems', () => {
 describe('materialDocumentToPassportInput', () => {
     const receipt = goodsReceiptItems(HEADERS)[0];
 
-    it('maps ERP facts plus product master to the flat PassportInput', () => {
-        const input = materialDocumentToPassportInput(receipt, MASTER);
+    it('maps ERP facts plus product master to the flat passport input', () => {
+        const input = materialDocumentToPassportInput(receipt, MASTER, OPTS) as any;
         assert.equal(input.passportId, 'BAT-EVBATTERY75-49000000010001');
         assert.equal(input.manufacturerId, 'DE-CELLCO-001');
         assert.equal(input.batteryCategory, 'EV');
@@ -145,28 +149,38 @@ describe('materialDocumentToPassportInput', () => {
         assert.equal(input.batteries[0].cellChemistry, 'NMC-811');
         assert.equal(input.recycledMaterials.length, 1);
         assert.deepEqual(input.diligenceDocs, [{ docType: 'supply-chain-due-diligence-report' }]);
+        assert.equal(MASTER['EV-BATTERY-75'].children.batteries[0].serialNumber, undefined, 'master rows are not mutated');
     });
 
     it('is deterministic: same document maps to the same passportId', () => {
-        const a = materialDocumentToPassportInput(receipt, MASTER);
-        const b = materialDocumentToPassportInput(receipt, MASTER);
+        const a = materialDocumentToPassportInput(receipt, MASTER, OPTS);
+        const b = materialDocumentToPassportInput(receipt, MASTER, OPTS);
         assert.deepEqual(a, b);
     });
 
     it('falls back to document/item for the serial when there is no batch', () => {
         const noBatch = { header: receipt.header, item: { ...receipt.item, Batch: undefined } };
-        const input = materialDocumentToPassportInput(noBatch, MASTER);
+        const input = materialDocumentToPassportInput(noBatch, MASTER, OPTS) as any;
         assert.equal(input.batteries[0].serialNumber, 'SN-4900000001-0001');
+    });
+
+    it('injects the serial into an absent child and skips it without a serial option', () => {
+        const noChild: ProductMaster = { 'EV-BATTERY-75': { ...MASTER['EV-BATTERY-75'], children: {} } };
+        const withSerial = materialDocumentToPassportInput(receipt, noChild, OPTS) as any;
+        assert.deepEqual(withSerial.batteries, [{ serialNumber: 'SN-CH202607A' }]);
+        const plain = materialDocumentToPassportInput(receipt, MASTER, { idPrefix: 'TX' }) as any;
+        assert.equal(plain.passportId.startsWith('TX-'), true);
+        assert.equal('serialNumber' in plain.batteries[0], false);
     });
 
     it('prefers the item ManufactureDate over the posting date', () => {
         const withMfg = { header: receipt.header, item: { ...receipt.item, ManufactureDate: '2026-03-15' } };
-        assert.equal(materialDocumentToPassportInput(withMfg, MASTER).manufactureDate, '2026-03-15');
+        assert.equal(materialDocumentToPassportInput(withMfg, MASTER, OPTS).manufactureDate, '2026-03-15');
     });
 
     it('throws for materials without a product-master entry', () => {
         const foil = goodsReceiptItems(HEADERS)[1];
-        assert.throws(() => materialDocumentToPassportInput(foil, MASTER), /no product-master entry/);
+        assert.throws(() => materialDocumentToPassportInput(foil, MASTER, OPTS), /no product-master entry/);
     });
 
     it('throws when no date source is usable', () => {
@@ -174,18 +188,19 @@ describe('materialDocumentToPassportInput', () => {
             header: { ...receipt.header, PostingDate: null, DocumentDate: null },
             item: receipt.item
         };
-        assert.throws(() => materialDocumentToPassportInput(dateless, MASTER), /no usable/);
+        assert.throws(() => materialDocumentToPassportInput(dateless, MASTER, OPTS), /no usable/);
     });
 });
 
 describe('cloud event envelope', () => {
-    it('produces the exact wire contract the webhook checks', () => {
-        const input = materialDocumentToPassportInput(goodsReceiptItems(HEADERS)[0], MASTER);
+    it('produces the wire contract with a default or custom event type', () => {
+        const input = materialDocumentToPassportInput(goodsReceiptItems(HEADERS)[0], MASTER, OPTS);
         const ev = toCloudEvent(input, { source: 'urn:test', id: 'id-1', time: '2026-07-31T00:00:00Z' });
         assert.equal(ev.specversion, '1.0');
-        assert.equal(ev.type, ERP_EVENT_TYPE);
-        assert.equal(ev.type, 'com.odatano.equinox.goodsreceipt.created');
+        assert.equal(ev.type, DEFAULT_ERP_EVENT_TYPE);
         assert.equal(ev.data.passportId, input.passportId);
+        const custom = toCloudEvent(input, { source: 'urn:test', id: 'id-2', time: '2026-07-31T00:00:00Z', type: 'com.example.gr' });
+        assert.equal(custom.type, 'com.example.gr');
     });
 
     it('signs the raw body exactly like the server verifies it', () => {
@@ -223,34 +238,36 @@ describe('applyProductData', () => {
     it('mapping rejects an unresolved entry (no model/weight from either side)', () => {
         const receipt = goodsReceiptItems(HEADERS)[0];
         const unresolved: ProductMaster = { 'EV-BATTERY-75': { ...entry, weightKg: undefined } };
-        assert.throws(() => materialDocumentToPassportInput(receipt, unresolved), /missing model\/weightKg/);
+        assert.throws(() => materialDocumentToPassportInput(receipt, unresolved, OPTS), /missing model\/weightKg/);
     });
 });
 
 describe('buildReceiptRows', () => {
-    it('classifies rows: ready with passportJson, unmapped without', () => {
-        const rows = buildReceiptRows(HEADERS, MASTER, new Set());
+    it('classifies rows: ready with passportJson and head, unmapped without', () => {
+        const rows = buildReceiptRows(HEADERS, MASTER, new Set(), OPTS);
         assert.equal(rows.length, 2);
         const [battery, foil] = rows;
         assert.equal(battery.status, 'ready');
         assert.equal(battery.material, 'EV-BATTERY-75');
         assert.equal(battery.passportId, 'BAT-EVBATTERY75-49000000010001');
         assert.equal(battery.postingDate, '2025-07-30');
+        assert.equal(battery.head?.batteryCategory, 'EV');
         assert.equal(JSON.parse(battery.passportJson!).model, 'PowerCell EV-75');
         assert.equal(foil.status, 'unmapped');
         assert.equal(foil.passportJson, null);
         assert.equal(foil.model, null);
+        assert.equal(foil.head, null);
     });
 
     it('marks known passport ids as exists', () => {
-        const rows = buildReceiptRows(HEADERS, MASTER, new Set(['BAT-EVBATTERY75-49000000010001']));
+        const rows = buildReceiptRows(HEADERS, MASTER, new Set(['BAT-EVBATTERY75-49000000010001']), OPTS);
         assert.equal(rows[0].status, 'exists');
         assert.ok(rows[0].passportJson, 'exists rows keep their payload');
     });
 
     it('an unresolved master entry degrades to unmapped, not a throw', () => {
         const unresolved = { 'EV-BATTERY-75': { ...MASTER['EV-BATTERY-75'], weightKg: undefined } };
-        const rows = buildReceiptRows(HEADERS, unresolved, new Set());
+        const rows = buildReceiptRows(HEADERS, unresolved, new Set(), OPTS);
         assert.equal(rows[0].status, 'unmapped');
     });
 });
@@ -258,7 +275,7 @@ describe('buildReceiptRows', () => {
 describe('ids and keys', () => {
     const item = goodsReceiptItems(HEADERS)[0].item;
     it('passportIdFor stays inside the safe charset and length budget', () => {
-        const id = passportIdFor(item);
+        const id = passportIdFor(item, 'BAT');
         assert.match(id, /^BAT-[A-Z0-9]+-[A-Z0-9]+$/);
         assert.ok(id.length <= 42, `id too long for the 50-char UPI budget: ${id}`);
     });

@@ -1,19 +1,22 @@
 # @odatano/dpp-sdk
 
-Chain-agnostic TypeScript SDK for **EU Battery Regulation (2023/1542, Annex
-XIII) Digital Product Passports**: canonical payload hashing, encryption,
-disclosure tiers, provable-field handling and the battery domain model.
+Chain-agnostic, product-agnostic TypeScript SDK for **Digital Product
+Passports**: canonical payload hashing, encryption, access levels, provable
+fields, Merkle content trees, lifecycles and ZK claim planning. A product
+family (batteries, textiles, electronics, ...) is described by a **profile**;
+the engine does the rest. An EU Battery Regulation (2023/1542, Annex XIII)
+profile ships with the package.
 
 It is the shared core of the ODATANO passport applications, which anchor
 the same passport content on different chains (Midnight and Cardano). A
 passport anchored by one must verify against data produced by the other, so
-everything that has to behave identically on both sides lives in this
-package, and a golden-vector test suite recorded from the live applications
-fails the build if any output ever changes.
+everything that has to behave identically on both sides lives here, and a
+golden-vector suite recorded from the live applications fails the build if
+any hashed byte ever changes.
 
 The SDK contains **no chain code**: no wallet, no transaction building, no
-network calls. It also reads no environment; encryption keys and app
-specifics are passed in by the caller.
+network calls. It reads no environment; keys, secrets and policies are
+passed in by the caller.
 
 ## Install
 
@@ -21,65 +24,118 @@ specifics are passed in by the caller.
 npm install @odatano/dpp-sdk
 ```
 
-Node.js >= 22. Import per subpath (there is a root barrel, but subpath
-imports keep bundles small):
-
-```ts
-import { hashPayload } from '@odatano/dpp-sdk/hash';
-import { payloadFromDb } from '@odatano/dpp-sdk/payload';
-import { encryptPayload, masterKeyFromHex } from '@odatano/dpp-sdk/cipher';
-import { redactPassport } from '@odatano/dpp-sdk/tier';
-```
+Node.js >= 22. Import per subpath (there is a root barrel of the
+browser-safe core, but subpath imports keep bundles small).
 
 ## Quick start
 
 ```ts
-import { payloadFromDb } from '@odatano/dpp-sdk/payload';
+import { defineProfile, projectPayload, redactRow, collectFieldValues } from '@odatano/dpp-sdk/profile';
 import { hashPayload } from '@odatano/dpp-sdk/hash';
 import { encryptPayload, masterKeyFromHex } from '@odatano/dpp-sdk/cipher';
 
-// 1. Project database rows into the canonical passport payload.
-const payload = payloadFromDb({
-  passport: row, batteries, recycledMaterials, diligenceDocs, attributes,
+// 1. Describe the product family once.
+const TEXTILE = defineProfile({
+  id: 'textile',
+  payloadVersion: 1,
+  children: {
+    components: {
+      columns: { name: 'string', fibre: 'string', sharePct: 'number', originCountry: 'string' },
+      sortBy: ['name'],
+      authorityColumns: ['originCountry'],
+    },
+    audits: { columns: { auditor: 'string', sha256: 'string' }, sortBy: ['sha256'], minLevel: 'authority' },
+  },
+  provableFields: [
+    { name: 'recycledFibrePct', kind: 'numeric',
+      source: { child: 'components', column: 'sharePct', match: { column: 'fibre', value: 'rPET' } } },
+    { name: 'waterUseLitres', kind: 'numeric' },   // measured, passed in as `extra`
+    { name: 'mainFibre', kind: 'string', source: { child: 'components', column: 'fibre' } },
+  ],
 });
 
-// 2. Hash it: this 32-byte value is what gets anchored on-chain.
+// 2. Project database rows into the canonical payload and hash it.
+//    The 32-byte hash is what gets anchored on-chain.
+const payload = projectPayload(TEXTILE, { components, audits, attributes });
 const { canonicalPayload, payloadHash } = hashPayload(payload);
 
 // 3. Encrypt the full content for off-chain storage; only the hash is public.
 const cipher = encryptPayload(canonicalPayload, passportId, masterKeyFromHex(keyHex));
+
+// 4. Serve a row to a caller at an access level.
+redactRow(TEXTILE, row, 'legitimateInterest', ['payloadHash', 'anchorTxHash']);
+
+// 5. Provable field values feed the content tree (see merkle).
+const values = collectFieldValues(TEXTILE, row, { waterUseLitres: 1200 });
 ```
 
-Anyone holding the same rows reproduces the same `payloadHash`, on any
-chain, in any app, which is the whole point.
+Anyone holding the same rows and the same profile reproduces the same
+`payloadHash`, on any chain, in any app.
 
-## Subpaths and main exports
+## Concepts
+
+- **Profile** (`profile`): children with typed columns, sort keys and
+  authority-only columns; the ordered provable-field panel; head-row
+  authority fields. The projection drops null/empty values, coerces numbers
+  (sqlite numbers and pg decimal strings hash alike) and sorts rows by a
+  stable business key. `payloadVersion` keeps hash spaces disjoint.
+- **Access levels** (`access`): `public` < `legitimateInterest` <
+  `authority`. A datum carries an access class; unknown or missing classes
+  fail closed to authority-only. Apps map their own role names onto these.
+- **Attributes** (`attributes`): product-neutral `(section, attribute,
+  valueJson, accessClass)` rows, hashed sorted by attribute name, filtered by
+  level, reconstructed as of a date.
+- **Provable fields** (`fields`, `merkle`): field key = blake2b-256 of the
+  name, values scaled x1000 to integers; the leaf index in the content tree
+  is the field's position in the profile panel. Leaf and node hashers are
+  chain vocabulary and are injected.
+- **Lifecycle** (`lifecycle`): a status state machine per product family.
+- **Claim sets** (`claim-sets`, `claim-cart`): membership catalogs and the
+  per-transaction plan of ZK claims; both take the profile's catalog.
+- **Documents** (`store`): a versioned DPP Life Cycle API document store
+  driven by a document profile (wrapper key, identifier attributes, access
+  classes).
+
+## Subpaths
 
 | Subpath | Main exports |
 |---|---|
+| `profile` | `defineProfile`, `projectPayload`, `redactRow`, `redactChildRow`, `collectFieldValues`, `panelOf`, `fieldKindOf` |
 | `hash` | `canonicalize`, `blake2b256Hex`, `blake2b256Bytes`, `hashPayload` |
-| `payload` | `payloadFromDb`, `PAYLOAD_VERSION`, `PayloadInputs` |
-| `cipher` | `encryptPayload`, `decryptPayload`, `masterKeyFromHex`, `assertEncryptionKey` (Node only) |
-| `tier` | `Tier`, `maxTier`, `levelToTier`, `redactPassport`, `redactBattery`, `redactRecycled`, `attributeVisible` |
-| `fields` | `PROVABLE_FIELDS`, `VALUE_SCALE`, `scaleValue`, `fieldKeyHex`, `fieldValuesFor`, hex helpers |
-| `merkle` | `buildTree` (pluggable node hash), `proofFor`, `verifyProof`, `padToWidth`, `depthForWidth` / `widthForDepth`, `MERKLE_DEPTH` (default 4) |
+| `access` | `AccessLevel`, `canRead`, `maxLevel`, `levelFromRank`, `strip` |
+| `attributes` | `AttributeRow`, `hashableAttributes`, `filterAttributes`, `attributesAsOf`, `dedupeUpdates` |
+| `fields` | `VALUE_SCALE`, `scaleValue`, `fieldKeyHex`, `weightGramsFromKg` |
+| `bytes` | `fromHex32`, `toHex`, `u64be`, `concatBytes` |
+| `merkle` | `buildTree` (pluggable node hash), `proofFor`, `verifyProof`, `padToWidth`, `depthForWidth` / `widthForDepth` |
+| `lifecycle` | `defineLifecycle` |
+| `claim-sets` | `ClaimSet`, `validateClaimSets`, `claimSetById`, `claimSetsForField`, `setLabelFor` |
+| `claim-cart` | `buildClaimCart`: validate/normalize/dedupe N ZK claims for one proof transaction |
 | `grantee` | `granteeIdForDid`, `normalizeGrantee` |
-| `http` | security-header and correlation-id helpers (Node only) |
-| `battery/lifecycle` | `validateTransition`, `parseBatteryStatus`, `encodeBatteryStatus`, `dppStatusFor` |
-| `battery/attributes` | telemetry attribute allowlist + encoders (`DYNAMIC_ATTRIBUTES`, `encodeDynamicValue`, `decodeDynamicValue`) |
-| `battery/guide-defaults` | DIN DKE SPEC 99100 default attribute sets per battery category, `hashableAttributes` |
-| `battery/guide-document` | official guide-format document builder (`buildGuideDocument`) |
+| `stuck-rows` | crash-recovery sweep planning for interrupted anchor pipelines |
+| `cipher` | `encryptPayload`, `decryptPayload`, `masterKeyFromHex`, `assertEncryptionKey` (Node only) |
+| `store` | `DocumentStore`, `DocumentProfile`, `filterDocument`, `mergePatch`, element-path helpers (Node only) |
+| `upload` | `validateUpload`, `decodeBase64Upload`, `sha256Hex` (Node only) |
+| `token` | `createTokenSigner` (Node only) |
+| `http` | `createHttpSecurity` middleware factory (Node only) |
+| `battery/profile` | `BATTERY_PROFILE`, `BATTERY_PANEL` and the panel slices |
+| `battery/lifecycle` | `BATTERY_LIFECYCLE`, `parseBatteryStatus`, `encodeBatteryStatus`, `dppStatusFor` |
+| `battery/attributes` | BMS attribute allowlist + guide-shape encoders |
+| `battery/guide-defaults` | DIN DKE SPEC 99100 default attribute sets per battery category |
+| `battery/guide-document` | guide-format document builder (`buildGuideDocument`) |
+| `battery/document` | `BATTERY_DOCUMENT` store profile, `GUIDE_ACCESS` |
+| `battery/claim-sets` | `BATTERY_CLAIM_SETS`, `CHEMISTRY_CODES` |
 | `battery/bms-simulator` | deterministic degradation-curve telemetry simulator |
-| `battery/diligence` | due-diligence upload validation (mime/size/path guards) |
-| `battery/token` / `battery/store` | DPP Life Cycle API document store + token helpers |
-| `battery/claim-sets` | published membership allow-lists (`CLAIM_SETS`, `claimSetById`) |
-| `battery/claim-cart` | `buildClaimCart`: validate/normalize/dedupe N ZK claims for one proof transaction |
-| `battery/stuck-rows` | crash-recovery sweep planning for interrupted anchor pipelines |
-| `integrations/catenax` | Catena-X CX-0143 aspect + verifiable-credential envelopes (chain evidence injected) |
-| `integrations/s4` | S/4HANA material-document mapper (Node only) |
+| `integrations/catenax` | Catena-X aspect + verifiable-credential envelopes (aspect URN and evidence injected) |
+| `integrations/s4` | S/4HANA material-document mapper over an injected product master (Node only) |
 
 Subpaths not marked "Node only" are dependency-light and bundle for the
 browser.
+
+## Adding a product family
+
+See [docs/profiles.md](docs/profiles.md). In short: one `defineProfile`
+call, optionally a `defineLifecycle`, a claim-set catalog and a document
+profile, plus a golden-vector test once the first passport is anchored.
 
 ## Content-tree width
 
@@ -98,18 +154,15 @@ depthForWidth(32); // 5
 The width is part of the root's identity: the same values under 16 and 32
 slots produce different roots, so a document family picks one width and
 keeps it. Anchoring against NIGHTGATE additionally needs the matching vault
-lineage (`attestation-vault` for 16, `attestation-vault-32` for 32), and
-cross-root proofs only relate documents of the same width.
+lineage (`attestation-vault` for 16, `attestation-vault-32` for 32).
 
 ## Stability
 
-The on-chain anchors of already-issued passports depend on this package's
-outputs staying exactly as they are: the payload projection, the canonical
-serialization, the hash and the cipher wire format are frozen and pinned by
-the golden-vector tests. Any change to them is a breaking release and means
-re-anchoring existing passports. Details of the formats live in the source
-of `payload.ts`, `hash.ts` and `cipher.ts`, next to the code that enforces
-them.
+The on-chain anchors of already-issued passports depend on the projection,
+the canonical serialization, the hash, the field keys and the cipher wire
+format staying exactly as they are. These are pinned by the golden-vector
+tests; any change there is a breaking release and means re-anchoring. The
+module layout and the non-hashed APIs are free to evolve.
 
 ## Development
 

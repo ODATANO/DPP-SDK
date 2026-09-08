@@ -1,4 +1,4 @@
-import { scaleValue } from '../fields';
+import { scaleValue } from './fields';
 import type { ClaimSet } from './claim-sets';
 
 /**

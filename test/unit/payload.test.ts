@@ -1,8 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { payloadFromDb, PAYLOAD_VERSION } from '../../src/payload';
+import { projectPayload, type ProfileRows } from '../../src/profile';
+import { BATTERY_PROFILE } from '../../src/battery/profile';
 import { hashPayload } from '../../src/hash';
 import { defaultGuideAttributes } from '../../src/battery/guide-defaults';
+
+const payloadFromDb = (rows: ProfileRows) => projectPayload(BATTERY_PROFILE, rows);
+const PAYLOAD_VERSION = BATTERY_PROFILE.payloadVersion;
 
 const attrs = defaultGuideAttributes({ passportId: 'BAT-RE-01', batteryCategory: 'EV' });
 
@@ -20,7 +24,7 @@ const baseInputs = () => ({
     attributes: attrs,
 });
 
-describe('payloadFromDb (projection v2)', () => {
+describe('battery payload projection v2', () => {
     it('carries the version marker and is deterministic', () => {
         const a = payloadFromDb(baseInputs());
         const b = payloadFromDb(baseInputs());

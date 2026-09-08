@@ -1,43 +1,29 @@
 /**
- * Battery status lifecycle (EU Battery Regulation 2023/1542, Annex XIII 4(c)):
- * original -> repurposed | reused | remanufactured -> waste. Pure module.
- * The status is part of the anchored payload hash; a change requires a
- * re-anchor and must flow through the single dedicated write action.
+ * Battery status lifecycle (Annex XIII 4(c)): original -> repurposed |
+ * reused | remanufactured -> waste. The status rides in the anchored payload,
+ * so a change requires a re-anchor through the single dedicated write action.
  */
+import { defineLifecycle } from '../lifecycle';
 
 export const BATTERY_STATUS_VALUES = ['original', 'repurposed', 'reused', 'remanufactured', 'waste'] as const;
 export type BatteryStatus = (typeof BATTERY_STATUS_VALUES)[number];
 
-/** Allowed transitions; waste is terminal, lateral second-life moves are not modeled. */
-export const ALLOWED_TRANSITIONS: Record<BatteryStatus, readonly BatteryStatus[]> = {
-    original: ['repurposed', 'reused', 'remanufactured', 'waste'],
-    repurposed: ['waste'],
-    reused: ['waste'],
-    remanufactured: ['waste'],
-    waste: [],
-};
+/** waste is terminal; lateral second-life moves are not modeled. */
+export const BATTERY_LIFECYCLE = defineLifecycle<BatteryStatus>({
+    noun: 'battery status',
+    states: BATTERY_STATUS_VALUES,
+    initial: 'original',
+    transitions: {
+        original: ['repurposed', 'reused', 'remanufactured', 'waste'],
+        repurposed: ['waste'],
+        reused: ['waste'],
+        remanufactured: ['waste'],
+        waste: [],
+    },
+});
 
-export function isBatteryStatus(v: unknown): v is BatteryStatus {
-    return typeof v === 'string' && (BATTERY_STATUS_VALUES as readonly string[]).includes(v);
-}
-
-export type TransitionResult = { ok: true } | { ok: false; error: string };
-
-export function validateTransition(from: unknown, to: unknown): TransitionResult {
-    if (!isBatteryStatus(to)) {
-        return { ok: false, error: `unknown battery status '${String(to)}' (allowed: ${BATTERY_STATUS_VALUES.join(', ')})` };
-    }
-    const current: BatteryStatus = isBatteryStatus(from) ? from : 'original';
-    if (current === to) return { ok: false, error: `battery status is already '${current}'` };
-    if (!ALLOWED_TRANSITIONS[current].includes(to)) {
-        return {
-            ok: false,
-            error: `illegal battery status transition '${current}' -> '${to}'` +
-                (ALLOWED_TRANSITIONS[current].length ? ` (allowed: ${ALLOWED_TRANSITIONS[current].join(', ')})` : ` ('${current}' is terminal)`),
-        };
-    }
-    return { ok: true };
-}
+export const isBatteryStatus = BATTERY_LIFECYCLE.is;
+export const validateTransition = BATTERY_LIFECYCLE.validateTransition;
 
 /** Status from a BatteryStatus row's valueJson; defensive default 'original'. */
 export function parseBatteryStatus(valueJson: unknown): BatteryStatus {

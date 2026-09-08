@@ -1,73 +1,76 @@
 /**
- * Catena-X export envelopes, chain-agnostic. Aspect: CX-0143 BatteryPass
- * JSON frame (producer-owned, no redaction). PAC: W3C-VC
- * PredicateAttestationCredential envelope. All chain-specific blocks
- * (integrity, attestation, predicateProofs) are injected verbatim by the
- * consumer. Browser-safe: no node builtins, no environment reads.
+ * Catena-X export envelopes, product- and chain-agnostic. Aspect: a SAMM
+ * aspect JSON frame (producer-owned, no redaction). PAC: W3C-VC
+ * PredicateAttestationCredential envelope. Aspect URN, profile strings,
+ * sections and every chain-specific block are injected by the consumer.
+ * Browser-safe: no node builtins, no environment reads.
  */
 
-export interface AspectRows {
-    passport: Record<string, any>;
-    cells: Array<Record<string, any>>;
-    recycled: Array<Record<string, any>>;
-    diligence: Array<Record<string, any>>;
+export interface AspectEnvelope {
+    /** SAMM aspect URN, e.g. urn:samm:io.catenax.battery.battery_pass:6.0.0#BatteryPass. */
+    aspect: string;
+    /** Human profile line, e.g. "EU 2023/1542 Annex XIII, Catena-X CX-0143". */
+    profile: string;
+    passportId: string;
+    /** Head-row fields published verbatim. */
+    general: Record<string, unknown>;
+    /** Named sections (child collections etc.) published verbatim, in order. */
+    sections: Record<string, unknown>;
     /** Chain-specific integrity block (payload hash, anchor refs, tx hashes). */
     integrity: Record<string, unknown>;
 }
 
-/** CX-0143 battery-passport aspect JSON (full structured, producer-owned). */
-export function buildAspectJson(rows: AspectRows): string {
-    const p = rows.passport;
+/** Aspect JSON: aspect, profile, passportId, general, ...sections, integrity. */
+export function buildAspectJson(env: AspectEnvelope): string {
     const aspect = {
-        aspect: 'urn:samm:io.catenax.battery.battery_pass:6.0.0#BatteryPass',
-        profile: 'EU 2023/1542 Annex XIII · Catena-X CX-0143',
-        passportId: p.passportId,
-        general: {
-            manufacturerId: p.manufacturerId,
-            batteryCategory: p.batteryCategory,
-            model: p.model,
-            manufactureDate: p.manufactureDate,
-            weightKg: p.weightKg,
-            performanceClass: p.performanceClass,
-            qrCodeUrl: p.qrCodeUrl
-        },
-        cells: rows.cells,
-        recycledContent: rows.recycled,
-        dueDiligence: rows.diligence,
-        integrity: rows.integrity
+        aspect: env.aspect,
+        profile: env.profile,
+        passportId: env.passportId,
+        general: env.general,
+        ...env.sections,
+        integrity: env.integrity,
     };
     return JSON.stringify(aspect, null, 2);
 }
 
 export interface PacInput {
-    passport: Record<string, any>;
+    /** Profile line, e.g. "Catena-X CX-0143 Battery Passport". */
+    profile: string;
+    /** Regulation reference, e.g. "EU 2023/1542 Annex XIII". */
+    standard: string;
+    passportId: string;
+    /** Portable verifiers bind chain-side tokens/claims back via this hash. */
+    passportIdHash?: string | null;
+    payloadHash?: string | null;
+    /** Extra credentialSubject fields (category, model, manufacturer). */
+    subject?: Record<string, unknown>;
     /** Chain-specific attestation evidence block, injected verbatim. */
     attestation: Record<string, unknown>;
     /** Chain-specific per-claim evidence entries, injected verbatim. */
     predicateProofs: Array<Record<string, unknown>>;
+    /** Credential id prefix (default urn:dpp:). */
+    idPrefix?: string;
+    /** Injectable for deterministic output; defaults to now. */
+    issuanceDate?: string;
 }
 
 /** W3C-VC PredicateAttestationCredential (Catena-X PAC profile) envelope. */
 export function buildPacJson(input: PacInput): string {
-    const p = input.passport;
     const credential = {
         '@context': ['https://www.w3.org/ns/credentials/v2', 'https://catena-x.net/schema/pac/v1'],
         type: ['VerifiableCredential', 'PredicateAttestationCredential'],
-        id: `urn:bpass:${p.passportId}`,
-        profile: 'Catena-X CX-0143 Battery Passport',
-        issuanceDate: new Date().toISOString(),
+        id: `${input.idPrefix ?? 'urn:dpp:'}${input.passportId}`,
+        profile: input.profile,
+        issuanceDate: input.issuanceDate ?? new Date().toISOString(),
         credentialSubject: {
-            passportId: p.passportId,
-            // Portable verifiers bind chain-side tokens/claims back via this hash.
-            passportIdHash: p.passportIdHash ?? null,
-            standard: 'EU 2023/1542 Annex XIII',
-            batteryCategory: p.batteryCategory,
-            model: p.model,
-            manufacturerId: p.manufacturerId,
-            payloadHash: p.payloadHash,
+            passportId: input.passportId,
+            passportIdHash: input.passportIdHash ?? null,
+            standard: input.standard,
+            ...(input.subject ?? {}),
+            payloadHash: input.payloadHash ?? null,
             attestation: input.attestation,
-            predicateProofs: input.predicateProofs
-        }
+            predicateProofs: input.predicateProofs,
+        },
     };
     return JSON.stringify(credential, null, 2);
 }

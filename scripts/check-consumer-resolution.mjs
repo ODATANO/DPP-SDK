@@ -19,10 +19,10 @@ const tarball = readdirSync(ROOT).filter((f) => /^odatano-dpp-sdk-.*\.tgz$/.test
 if (!tarball) throw new Error('npm pack produced no tarball');
 
 const SUBPATHS = [
-    '', 'hash', 'cipher', 'grantee', 'fields', 'merkle', 'tier', 'payload', 'http',
-    'battery/lifecycle', 'battery/attributes', 'battery/guide-defaults', 'battery/guide-document',
-    'battery/bms-simulator', 'battery/diligence', 'battery/token', 'battery/store',
-    'battery/claim-sets', 'battery/stuck-rows',
+    '', 'hash', 'bytes', 'cipher', 'grantee', 'access', 'attributes', 'fields', 'profile', 'merkle',
+    'lifecycle', 'claim-sets', 'claim-cart', 'store', 'upload', 'token', 'stuck-rows', 'http',
+    'battery/profile', 'battery/lifecycle', 'battery/attributes', 'battery/guide-defaults',
+    'battery/guide-document', 'battery/bms-simulator', 'battery/claim-sets', 'battery/document',
     'integrations/catenax', 'integrations/s4',
 ];
 
@@ -32,8 +32,9 @@ const probeLines = SUBPATHS.map((p, i) => {
 }).join('\n') + `
 // typed usage so the d.ts actually participates
 import { hashPayload } from '@odatano/dpp-sdk/hash';
-import { payloadFromDb } from '@odatano/dpp-sdk/payload';
-const h: string = hashPayload(payloadFromDb({ batteries: [], recycledMaterials: [], diligenceDocs: [], attributes: [] })).payloadHash;
+import { projectPayload } from '@odatano/dpp-sdk/profile';
+import { BATTERY_PROFILE } from '@odatano/dpp-sdk/battery/profile';
+const h: string = hashPayload(projectPayload(BATTERY_PROFILE, { attributes: [] })).payloadHash;
 void h;
 `;
 

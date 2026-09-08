@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { sweepAction, verdictToStatus, STUCK_AFTER_MS } from '../../src/battery/stuck-rows';
+import { sweepAction, verdictToStatus, STUCK_AFTER_MS } from '../../src/stuck-rows';
 
 describe('sweepAction', () => {
     it('leaves a young row alone (a detached runner may still own it)', () => {

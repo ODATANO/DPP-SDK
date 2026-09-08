@@ -1,11 +1,11 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildClaimCart, type ClaimCartOptions, type PlannedCartClaim } from '../../src/battery/claim-cart';
-import { CLAIM_SETS } from '../../src/battery/claim-sets';
+import { buildClaimCart, type ClaimCartOptions, type PlannedCartClaim } from '../../src/claim-cart';
+import { BATTERY_CLAIM_SETS } from '../../src/battery/claim-sets';
 
 const OPTS: ClaimCartOptions = {
     provableFields: ['carbonFootprintKgCO2', 'capacityKwh', 'recycledCoPct', 'cellChemistry'],
-    claimSets: CLAIM_SETS,
+    claimSets: BATTERY_CLAIM_SETS,
     maxClaims: 3,
     // Cardano-shaped exclusivity: one claim per verifier policy (operator).
     groupOf: (c: PlannedCartClaim) => (c.kind === 'membership' ? 'membership' : c.predicate),

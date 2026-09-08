@@ -1,7 +1,7 @@
 {
   "name": "@odatano/dpp-sdk",
-  "version": "0.2.0",
-  "description": "Chain-agnostic EU Battery Regulation Digital Product Passport domain SDK: canonical hashing, payload projection v2, field registries, merkle proofs, disclosure tiers.",
+  "version": "0.3.0",
+  "description": "Chain-agnostic Digital Product Passport domain SDK: product profiles, canonical hashing, payload projection, access levels, merkle proofs, lifecycles, ZK claim planning. Ships an EU Battery Regulation profile.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -29,6 +29,12 @@
       "require": "./dist/hash.js",
       "default": "./dist/hash.js"
     },
+    "./bytes": {
+      "types": "./dist/bytes.d.ts",
+      "import": "./dist/bytes.mjs",
+      "require": "./dist/bytes.js",
+      "default": "./dist/bytes.js"
+    },
     "./cipher": {
       "types": "./dist/cipher.d.ts",
       "import": "./dist/cipher.mjs",
@@ -41,11 +47,29 @@
       "require": "./dist/grantee.js",
       "default": "./dist/grantee.js"
     },
+    "./access": {
+      "types": "./dist/access.d.ts",
+      "import": "./dist/access.mjs",
+      "require": "./dist/access.js",
+      "default": "./dist/access.js"
+    },
+    "./attributes": {
+      "types": "./dist/attributes.d.ts",
+      "import": "./dist/attributes.mjs",
+      "require": "./dist/attributes.js",
+      "default": "./dist/attributes.js"
+    },
     "./fields": {
       "types": "./dist/fields.d.ts",
       "import": "./dist/fields.mjs",
       "require": "./dist/fields.js",
       "default": "./dist/fields.js"
+    },
+    "./profile": {
+      "types": "./dist/profile.d.ts",
+      "import": "./dist/profile.mjs",
+      "require": "./dist/profile.js",
+      "default": "./dist/profile.js"
     },
     "./merkle": {
       "types": "./dist/merkle.d.ts",
@@ -53,17 +77,47 @@
       "require": "./dist/merkle.js",
       "default": "./dist/merkle.js"
     },
-    "./tier": {
-      "types": "./dist/tier.d.ts",
-      "import": "./dist/tier.mjs",
-      "require": "./dist/tier.js",
-      "default": "./dist/tier.js"
+    "./lifecycle": {
+      "types": "./dist/lifecycle.d.ts",
+      "import": "./dist/lifecycle.mjs",
+      "require": "./dist/lifecycle.js",
+      "default": "./dist/lifecycle.js"
     },
-    "./payload": {
-      "types": "./dist/payload.d.ts",
-      "import": "./dist/payload.mjs",
-      "require": "./dist/payload.js",
-      "default": "./dist/payload.js"
+    "./claim-sets": {
+      "types": "./dist/claim-sets.d.ts",
+      "import": "./dist/claim-sets.mjs",
+      "require": "./dist/claim-sets.js",
+      "default": "./dist/claim-sets.js"
+    },
+    "./claim-cart": {
+      "types": "./dist/claim-cart.d.ts",
+      "import": "./dist/claim-cart.mjs",
+      "require": "./dist/claim-cart.js",
+      "default": "./dist/claim-cart.js"
+    },
+    "./store": {
+      "types": "./dist/store.d.ts",
+      "import": "./dist/store.mjs",
+      "require": "./dist/store.js",
+      "default": "./dist/store.js"
+    },
+    "./upload": {
+      "types": "./dist/upload.d.ts",
+      "import": "./dist/upload.mjs",
+      "require": "./dist/upload.js",
+      "default": "./dist/upload.js"
+    },
+    "./token": {
+      "types": "./dist/token.d.ts",
+      "import": "./dist/token.mjs",
+      "require": "./dist/token.js",
+      "default": "./dist/token.js"
+    },
+    "./stuck-rows": {
+      "types": "./dist/stuck-rows.d.ts",
+      "import": "./dist/stuck-rows.mjs",
+      "require": "./dist/stuck-rows.js",
+      "default": "./dist/stuck-rows.js"
     },
     "./http": {
       "types": "./dist/http.d.ts",
@@ -121,5 +175,14 @@
     "tsup": "^8",
     "tsx": "^4",
     "typescript": "^5.9.3"
-  }
+  },
+  "keywords": [
+    "digital-product-passport",
+    "dpp",
+    "espr",
+    "battery-passport",
+    "merkle",
+    "blake2b",
+    "zero-knowledge"
+  ]
 }

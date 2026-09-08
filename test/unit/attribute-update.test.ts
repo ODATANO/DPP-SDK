@@ -4,11 +4,8 @@ import {
     DYNAMIC_ATTRIBUTES,
     encodeDynamicValue,
     decodeDynamicValue,
-    dedupeUpdates,
-    attributesAsOf,
-    type CurrentRowLike,
-    type HistoryRowLike,
 } from '../../src/battery/attributes';
+import { dedupeUpdates, attributesAsOf, type CurrentRowLike, type HistoryRowLike } from '../../src/attributes';
 import { defaultGuideAttributes } from '../../src/battery/guide-defaults';
 
 const ok = (attribute: string, value: unknown): string => {

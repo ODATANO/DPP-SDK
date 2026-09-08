@@ -11,9 +11,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { canonicalize, hashPayload, blake2b256Bytes } from '../../src/hash';
-import { payloadFromDb } from '../../src/payload';
+import { projectPayload } from '../../src/profile';
+import { BATTERY_PROFILE, BATTERY_PANEL } from '../../src/battery/profile';
 import { granteeIdForDid } from '../../src/grantee';
-import { fieldKeyHex, scaleValue, fromHex32, u64be, PROVABLE_FIELDS } from '../../src/fields';
+import { fieldKeyHex, scaleValue } from '../../src/fields';
+import { fromHex32, u64be } from '../../src/bytes';
 import { buildTree, verifyProof, LEAF_COUNT } from '../../src/merkle';
 import { decryptPayload, encryptPayload, masterKeyFromHex } from '../../src/cipher';
 
@@ -23,7 +25,7 @@ describe('payload v2 golden vectors', () => {
     for (const name of ['full', 'noAttributes', 'minimal'] as const) {
         it(`reproduces the '${name}' canonical payload and hash byte-for-byte`, () => {
             const v = vectors.payloadV2[name];
-            const { canonicalPayload, payloadHash } = hashPayload(payloadFromDb(v.inputs));
+            const { canonicalPayload, payloadHash } = hashPayload(projectPayload(BATTERY_PROFILE, v.inputs));
             assert.equal(canonicalPayload, v.canonicalPayload);
             assert.equal(payloadHash, v.payloadHash);
         });
@@ -81,7 +83,7 @@ describe('DAYPASS content-root golden vector (generic tree walk)', () => {
         const empty = leafHash(fromHex32(fieldKeyHex('daypass/content-root/empty-leaf/v1')), 0n);
         const leaves: Uint8Array[] = [];
         for (let i = 0; i < LEAF_COUNT; i++) {
-            const fieldName = PROVABLE_FIELDS[i];
+            const fieldName = BATTERY_PANEL[i];
             const raw = fieldName != null ? v.values[fieldName] : undefined;
             leaves.push(raw != null
                 ? leafHash(fromHex32(fieldKeyHex(fieldName)), BigInt(scaleValue(raw)))

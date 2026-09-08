@@ -5,7 +5,7 @@
  * depth-derived: pass 16 leaves for a depth-4 tree, 32 for depth-5.
  * Browser-safe: no node builtins, no environment reads.
  */
-import { fromHex32, toHex } from './fields';
+import { fromHex32, toHex } from './bytes';
 
 /** DEFAULT tree depth (16-slot panel), not a limit. Use depthForWidth for others. */
 export const MERKLE_DEPTH = 4;

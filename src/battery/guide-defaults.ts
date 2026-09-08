@@ -5,12 +5,8 @@
  * Standalone consumer seeders must emit the same rows and classes.
  */
 
-export interface GuideAttributeRow {
-    section: string;
-    attribute: string;
-    valueJson: string;
-    accessClass: 'public' | 'legitimateInterest' | 'authority';
-}
+import type { AttributeRow } from '../attributes';
+
 
 const ID = 'IdentifiersAndProductData';
 const PERF = 'PerformanceAndDurability';
@@ -44,11 +40,11 @@ export function defaultGuideAttributes(p: {
     model?: string | null;
     performanceClass?: string | null;
     batteryCategory?: string | null; // EV (default) | INDUSTRIAL | LMT | STATIONARY | INDUSTRIAL_NO_BMS; picks the guide-specific set
-}): GuideAttributeRow[] {
+}): AttributeRow[] {
     const pid = p.passportId;
     const category = p.batteryCategory ?? 'EV';
     const urn = (kind: string, rest: string) => `urn:odatano:${kind}:${rest}`;
-    const rows: Array<[string, string, unknown, GuideAttributeRow['accessClass']]> = [
+    const rows: Array<[string, string, unknown, AttributeRow['accessClass']]> = [
         // Identifiers and product data (longlist #3-11)
         [ID, 'UniqueEconomicOperatorIdentifier', 'EORI-DE-CELLCO-001', PUB],
         [ID, 'UniqueFacilityIdentifier', 'GLN-FAC-4098765432101', PUB],
@@ -172,12 +168,4 @@ export function defaultGuideAttributes(p: {
     return filtered.map(([section, attribute, value, accessClass]) => ({
         section, attribute, valueJson: JSON.stringify(value), accessClass,
     }));
-}
-
-/** Order-stable projection for the anchored payload hash: sorted by attribute
- * name so INSERT order never changes the hash; accessClass rides in the hash. */
-export function hashableAttributes(rows: GuideAttributeRow[]): GuideAttributeRow[] {
-    return [...rows]
-        .map(({ section, attribute, valueJson, accessClass }) => ({ section, attribute, valueJson, accessClass }))
-        .sort((a, b) => a.attribute.localeCompare(b.attribute));
 }
