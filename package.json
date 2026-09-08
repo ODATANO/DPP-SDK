@@ -163,6 +163,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test \"test/unit/**/*.test.ts\"",
     "test:ci": "node --import tsx --test-reporter=spec --test \"test/unit/**/*.test.ts\"",
+    "test:coverage": "node -e \"require('fs').mkdirSync('coverage',{recursive:true})\" && node --import tsx --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info --test-reporter=spec --test-reporter-destination=stdout --test \"test/unit/**/*.test.ts\"",
     "check:consumers": "node scripts/check-consumer-resolution.mjs",
     "prepack": "npm run build",
     "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run check:consumers"

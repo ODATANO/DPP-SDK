@@ -1,5 +1,12 @@
 # @odatano/dpp-sdk
 
+[![Tests](https://github.com/ODATANO/DPP-SDK/actions/workflows/test.yaml/badge.svg)](https://github.com/ODATANO/DPP-SDK/actions/workflows/test.yaml)
+[![codecov](https://codecov.io/gh/ODATANO/DPP-SDK/branch/main/graph/badge.svg)](https://codecov.io/gh/ODATANO/DPP-SDK)
+[![npm version](https://img.shields.io/npm/v/@odatano/dpp-sdk?logo=npm)](https://www.npmjs.com/package/@odatano/dpp-sdk)
+[![npm downloads](https://img.shields.io/npm/dt/@odatano/dpp-sdk?logo=npm&label=downloads&color=blue)](https://www.npmjs.com/package/@odatano/dpp-sdk)
+[![Node](https://img.shields.io/badge/node-%3E%3D22-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-yellow)](LICENSE)
+
 Chain-agnostic, product-agnostic TypeScript SDK for **Digital Product
 Passports**: canonical payload hashing, encryption, access levels, provable
 fields, Merkle content trees, lifecycles and ZK claim planning. A product
@@ -171,7 +178,12 @@ npm install
 npm run typecheck && npm test   # node:test via tsx
 npm run build                   # tsup: CJS + ESM + d.ts per subpath
 npm run check:consumers         # packs + resolves the tarball under both consumer tsconfig profiles
+npm run test:coverage           # lcov report in coverage/ (what CI uploads to Codecov)
 ```
+
+CI (`.github/workflows/test.yaml`) runs typecheck, tests with coverage,
+build and the consumer-resolution probe on Node 22 and 24 for every push
+and pull request to `main`.
 
 ## License
 
