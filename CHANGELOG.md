@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.4.0
+
+Second product family: the **component passport** for safety-related
+engineered parts (pressure-boundary and structural components of regulated
+plants). Purely additive: the battery profile and every hashed byte are
+unchanged.
+
+- **`component/profile`** (new): `COMPONENT_PROFILE` (`payloadVersion` 1)
+  with the children `materialCertificates`, `qualificationTests` and
+  `custodyRecords` (authority only), the 8-slot `COMPONENT_PANEL`
+  (`yieldStrengthMpa`, `tensileStrengthMpa`, `hardnessHb`,
+  `cobaltContentPpm`, `wallThicknessMm`, then `materialGrade`,
+  `supplierId`, `testMethod`) and its slices.
+- **`component/claim-sets`** (new): `COMPONENT_CLAIM_SETS` with
+  `grade-approved`, `grade-austenitic`, `supplier-qualified` and
+  `ndt-approved`, plus the member lists as constants.
+- **`component/lifecycle`** (new): `COMPONENT_LIFECYCLE` (manufactured,
+  qualified, installed, inService, quarantined, retired) with
+  `parseComponentStatus` and `encodeComponentStatus`.
+- The sample part of `test/unit/component.test.ts` pins the family's
+  payload hash.
 ## 0.3.0
 
 Product-agnostic restructure. The package now describes a product family

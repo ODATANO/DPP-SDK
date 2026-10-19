@@ -10,7 +10,7 @@
 Chain-agnostic, product-agnostic TypeScript SDK for **Digital Product
 Passports**: canonical payload hashing, encryption, access levels, provable
 fields, Merkle content trees, lifecycles and ZK claim planning. A product
-family (batteries, textiles, electronics, ...) is described by a **profile**;
+family (batteries, engineered components, textiles, ...) is described by a **profile**;
 the engine does the rest. An EU Battery Regulation (2023/1542, Annex XIII)
 profile ships with the package.
 
@@ -132,6 +132,9 @@ Anyone holding the same rows and the same profile reproduces the same
 | `battery/document` | `BATTERY_DOCUMENT` store profile, `GUIDE_ACCESS` |
 | `battery/claim-sets` | `BATTERY_CLAIM_SETS`, `CHEMISTRY_CODES` |
 | `battery/bms-simulator` | deterministic degradation-curve telemetry simulator |
+| `component/profile` | `COMPONENT_PROFILE`, `COMPONENT_PANEL` and the panel slices (safety-related engineered parts) |
+| `component/claim-sets` | `COMPONENT_CLAIM_SETS`: approved grades, qualified suppliers, approved test methods |
+| `component/lifecycle` | `COMPONENT_LIFECYCLE`, `parseComponentStatus`, `encodeComponentStatus` |
 | `integrations/catenax` | Catena-X aspect + verifiable-credential envelopes (aspect URN and evidence injected) |
 | `integrations/s4` | S/4HANA material-document mapper over an injected product master (Node only) |
 

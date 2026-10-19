@@ -1,0 +1,122 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  # Gate 1: the same pipeline that guards main (typecheck, tests with
+  # coverage, dual build, consumer-resolution probe on Node 22 and 24).
+  verify:
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
+    permissions:
+      contents: read
+
+  # Gate 2: tag must match package.json, the production dependency set must
+  # be free of known high/critical advisories and the files allowlist must
+  # pack cleanly. Publishing to npm stays a MANUAL step by policy.
+  package-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify tag matches package.json version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION=${VERSION#.}
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$'; then
+            echo "::error::tag '${GITHUB_REF#refs/tags/}' does not yield a valid version (got '$VERSION'); use vMAJOR.MINOR.PATCH"
+            exit 1
+          fi
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$VERSION" != "$PKG" ]; then
+            echo "::error::tag version '$VERSION' does not match package.json version '$PKG'; retag the correct commit or bump package.json first"
+            exit 1
+          fi
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Validate files allowlist
+        run: npm pack --dry-run
+
+  # The GitHub release: body is the matching CHANGELOG section, the packed
+  # npm tarball is attached so consumers on file: references can pin it
+  # before the registry publish, and GitHub appends the commit list.
+  release:
+    needs: [verify, package-check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION=${VERSION#.}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pack npm tarball
+        run: npm pack
+
+      - name: Extract CHANGELOG section
+        run: |
+          VERSION='${{ steps.version.outputs.version }}'
+          awk -v v="$VERSION" '
+            $0 ~ "^## " { if (found) exit; found = ($2 == v) ; next }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "::error::CHANGELOG.md has no '## $VERSION' section"
+            exit 1
+          fi
+          {
+            echo "## Install"
+            echo
+            echo '```bash'
+            echo "npm install @odatano/dpp-sdk@$VERSION"
+            echo '```'
+            echo
+          } >> release-notes.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: v${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: odatano-dpp-sdk-${{ steps.version.outputs.version }}.tgz
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ steps.version.outputs.prerelease == 'true' }}

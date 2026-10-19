@@ -1,6 +1,6 @@
 {
   "name": "@odatano/dpp-sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Chain-agnostic Digital Product Passport domain SDK: product profiles, canonical hashing, payload projection, access levels, merkle proofs, lifecycles, ZK claim planning. Ships an EU Battery Regulation profile.",
   "license": "Apache-2.0",
   "repository": {
@@ -130,6 +130,12 @@
       "import": "./dist/battery/*.mjs",
       "require": "./dist/battery/*.js",
       "default": "./dist/battery/*.js"
+    },
+    "./component/*": {
+      "types": "./dist/component/*.d.ts",
+      "import": "./dist/component/*.mjs",
+      "require": "./dist/component/*.js",
+      "default": "./dist/component/*.js"
     },
     "./integrations/*": {
       "types": "./dist/integrations/*.d.ts",

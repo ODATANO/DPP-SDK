@@ -23,6 +23,7 @@ const SUBPATHS = [
     'lifecycle', 'claim-sets', 'claim-cart', 'store', 'upload', 'token', 'stuck-rows', 'http',
     'battery/profile', 'battery/lifecycle', 'battery/attributes', 'battery/guide-defaults',
     'battery/guide-document', 'battery/bms-simulator', 'battery/claim-sets', 'battery/document',
+    'component/profile', 'component/claim-sets', 'component/lifecycle',
     'integrations/catenax', 'integrations/s4',
 ];
 
